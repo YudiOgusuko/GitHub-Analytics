@@ -5,17 +5,17 @@ import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({
-         "contribuicoesTotais",
-         "commitsTotais",
-         "issuesTotais",
-         "pullRequestsTotais",
-         "pullRequestsRevisadosTotais"
+         "contribuicoes",
+         "commits",
+         "issues",
+         "pullRequests",
+         "pullRequestsRevisados"
 })
-public record UsuarioContribuicoesDto(Integer contribuicoesTotais,
-                                      Integer commitsTotais,
-                                      Integer issuesTotais,
-                                      Integer pullRequestsTotais,
-                                      Integer pullRequestsRevisadosTotais) {
+public record UsuarioContribuicoesDto(Integer contribuicoes,
+                                      Integer commits,
+                                      Integer issues,
+                                      Integer pullRequests,
+                                      Integer pullRequestsRevisados) {
 
     public UsuarioContribuicoesDto(Contribuicoes contribuicoes) {
         this(contribuicoes.data().user().contributionsCollection() != null ? contribuicoes.data().user().contributionsCollection().contributionCalendar().totalContributions() : 0,

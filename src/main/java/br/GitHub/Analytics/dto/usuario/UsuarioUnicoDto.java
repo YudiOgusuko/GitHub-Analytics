@@ -52,8 +52,8 @@ public record UsuarioUnicoDto(String userName,
                 dados.avatar() != null ? dados.avatar() : "N/A", dados.bio() != null ? dados.bio() : "N/A",linguagemMaisUsada(repositorioDto),
                 dados.totalRepositorios() != null ? dados.totalRepositorios() : 0, totalDeEstrelas(repositorioDto),
                 dados.seguidores() != null ? dados.seguidores() : 0, dados.seguindo() != null ? dados.seguindo() : 0,
-                formatarData(dados.criadoEm()), contribuicoesDto.contribuicoesTotais(), contribuicoesDto.commitsTotais(), contribuicoesDto.issuesTotais(),
-                contribuicoesDto.pullRequestsTotais(), contribuicoesDto.pullRequestsRevisadosTotais());
+                formatarData(dados.criadoEm()), contribuicoesDto.contribuicoes(), contribuicoesDto.commits(), contribuicoesDto.issues(),
+                contribuicoesDto.pullRequests(), contribuicoesDto.pullRequestsRevisados());
     }
 
     public UsuarioUnicoDto(Usuario usuario) {

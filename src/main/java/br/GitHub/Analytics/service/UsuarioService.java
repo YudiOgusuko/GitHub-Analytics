@@ -11,6 +11,8 @@ import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioMultiplosDados;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
 import br.GitHub.Analytics.dto.usuario.eventos.EventosDados;
+import br.GitHub.Analytics.handler.exception.InternalServerException;
+import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import br.GitHub.Analytics.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -67,15 +69,19 @@ public class UsuarioService {
     }
 
     public UsuarioMultiplosDto buscarUsuariosMultiplosNaApi(String nome) {
-        nome = Utilitarios.tirarEspaco(nome);
 
-        UsuarioMultiplosDados usuarioMultiplosDados = usarRestClient(URL_GERAL, nome, UsuarioMultiplosDados.class);
+        try{
+            UsuarioMultiplosDados usuarioMultiplosDados = usarRestClient(URL_GERAL, nome, UsuarioMultiplosDados.class);
 
-        if(usuarioMultiplosDados == null || Utilitarios.verificarCamposNull(usuarioMultiplosDados)) {
-            throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
+            if(usuarioMultiplosDados == null || Utilitarios.verificarCamposNull(usuarioMultiplosDados)) {
+                throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
+            }
+
+            return new UsuarioMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioMultiplosDados.perfil());
+        } catch (HttpClientErrorException e) {
+            throw new InternalServerException("Erro inesperado. Por favor, tente novamente.");
         }
 
-        return new UsuarioMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioMultiplosDados.perfil());
     }
 
     public List<UsuarioEventosDto> buscarEventosNaApi (String nome) {
@@ -83,8 +89,10 @@ public class UsuarioService {
 
         List<EventosDados> eventosDados = usarRestClientLista(URL_UNICA, nome, "/events", new ParameterizedTypeReference<>(){});
 
-        if(eventosDados == null || eventosDados.isEmpty()) {
-            throw new NotFoundException(String.format("Nenhum evento foi encontrado para o usuário %s.", nome));
+        if (eventosDados == null) {
+            throw new NotFoundException(String.format("Nenhum evento foi encontrado para %s.", nome));
+        } else if(eventosDados.isEmpty()) {
+            throw new NoContentException(String.format("%s não possui nenhum evento recente.", nome));
         }
 
         return eventosDados.stream()
