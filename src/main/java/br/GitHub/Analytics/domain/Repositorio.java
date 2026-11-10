@@ -1,6 +1,6 @@
 package br.GitHub.Analytics.domain;
 
-import br.GitHub.Analytics.dto.RepositorioDto;
+import br.GitHub.Analytics.dto.repositorio.RepositorioDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +24,7 @@ public class Repositorio {
     @Column(unique = true, nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private String pagina;
-
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String descricao;
 
     @Column(nullable = false)
@@ -58,7 +55,6 @@ public class Repositorio {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
 
         this.nome = repositorioDto.nome();
-        this.pagina = repositorioDto.pagina();
         this.descricao = repositorioDto.descricao();
         this.criadaEm = repositorioDto.criadaEm() != null ? formatter.format(repositorioDto.criadaEm().atZone(ZoneId.of("UTC"))) : "N/A";
         this.ultimoUpdate = repositorioDto.criadaEm() != null ? formatter.format(repositorioDto.ultimoUpdate().atZone(ZoneId.of("UTC"))) : "N/A";

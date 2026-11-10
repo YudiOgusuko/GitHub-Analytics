@@ -1,7 +1,7 @@
 package br.GitHub.Analytics.service;
 
-import br.GitHub.Analytics.dto.RepositorioDto;
-import br.GitHub.Analytics.dto.repositorioDados.RepositorioDados;
+import br.GitHub.Analytics.dto.repositorio.RepositorioDto;
+import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import br.GitHub.Analytics.repository.IRepositorioRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class RepositorioService {
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
 
-        if(repositorioDados == null || repositorioDados.isEmpty()) {
+        if(repositorioDados == null) {
             throw new NotFoundException("Nenhum repositório foi encontrado.");
         }
 

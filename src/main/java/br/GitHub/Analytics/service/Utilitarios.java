@@ -23,6 +23,24 @@ public class Utilitarios {
         return stringBuilder.toString().trim();
     }
 
+    public static String tirarEspaco(String txt) {
+        if(txt == null || txt.isBlank()) {
+            return "";
+        }
+
+        String[] palavra = txt.trim().split("\\s+");
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for(String p : palavra) {
+            if(!p.isBlank()) {
+                String formatar = p.charAt(0) + p.substring(1);
+
+                stringBuilder.append(formatar);
+            }
+        }
+        return stringBuilder.toString().trim();
+    }
+
     public static boolean verificarCamposNull(Object object) {
         if(object == null) {
             return true;

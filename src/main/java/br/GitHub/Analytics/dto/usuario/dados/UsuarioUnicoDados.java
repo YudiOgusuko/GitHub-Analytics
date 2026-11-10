@@ -1,19 +1,19 @@
-package br.GitHub.Analytics.dto.usuarioDados;
+package br.GitHub.Analytics.dto.usuario.dados;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 
 import java.time.Instant;
 
-@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UsuarioUnicoDados(@JsonProperty("login") String userName,
-                                @JsonProperty("name") String nome,
-                                @JsonProperty("avatar_url") String perfil,
-                                String bio,
+                                @JsonProperty("avatar_url") String avatar,
+                                @JsonProperty("following_url") String nomeSeguidores,
+                                @JsonProperty("followers_url") String nomeSeguindo,
                                 @JsonProperty("repos_url") String repositoriosUrl,
-                                @JsonProperty("public_repos") Integer repositorios,
+                                @JsonProperty("name") String nome,
+                                @JsonProperty("bio") String bio,
+                                @JsonProperty("public_repos") Integer totalRepositorios,
                                 @JsonProperty("followers") Integer seguidores,
                                 @JsonProperty("following") Integer seguindo,
                                 @JsonProperty("created_at") Instant criadoEm) {

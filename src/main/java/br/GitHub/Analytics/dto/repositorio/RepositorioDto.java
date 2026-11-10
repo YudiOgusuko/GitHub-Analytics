@@ -1,15 +1,12 @@
-package br.GitHub.Analytics.dto;
+package br.GitHub.Analytics.dto.repositorio;
 
-import br.GitHub.Analytics.dto.repositorioDados.RepositorioDados;
+import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Builder;
 
 import java.time.Instant;
 
-@Builder
 @JsonPropertyOrder({
         "nome",
-        "pagina",
         "descricao",
         "criadaEm",
         "ultimoUpdate",
@@ -18,7 +15,6 @@ import java.time.Instant;
         "forks",
         "openIssues"})
 public record RepositorioDto(String nome,
-                             String pagina,
                              String descricao,
                              Instant criadaEm,
                              Instant ultimoUpdate,
@@ -28,9 +24,9 @@ public record RepositorioDto(String nome,
                              Integer openIssues) {
 
     public RepositorioDto(RepositorioDados dados) {
-        this(dados.nome() != null ? dados.nome() : "N/A", dados.pagina() != null ? dados.pagina() : "N/A",
-                dados.descricao() != null ? dados.descricao() : "N/A", dados.criadoEm(), dados.ultimoUpdate(),
-                dados.estrelas() != null ? dados.estrelas() : 0, dados.linguagem() != null ? dados.linguagem() : "N/A",
-                dados.forks() != null ? dados.forks() : 0, dados.openIssues() != null ? dados.openIssues() : 0);
+        this(dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
+                dados.criadoEm(), dados.ultimoUpdate(),  dados.estrelas() != null ? dados.estrelas() : 0,
+                dados.linguagem() != null ? dados.linguagem() : "N/A", dados.forks() != null ? dados.forks() : 0,
+                dados.openIssues() != null ? dados.openIssues() : 0);
     }
 }
