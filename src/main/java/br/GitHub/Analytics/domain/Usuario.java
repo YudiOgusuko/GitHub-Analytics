@@ -1,6 +1,7 @@
 package br.GitHub.Analytics.domain;
 
 import br.GitHub.Analytics.dto.usuario.UsuarioUnicoDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -65,6 +66,14 @@ public class Usuario {
     @Column(nullable = false)
     private Integer pullRequestsRevisados;
 
+    @Transient
+    @JsonIgnore
+    private String seguidoresUrl;
+
+    @Transient
+    @JsonIgnore
+    private String seguindoUrl;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Repositorio> repositoriosList = new ArrayList<>();
 
@@ -84,6 +93,8 @@ public class Usuario {
         this.issues = userDto.issues();
         this.pullRequests = userDto.pullRequests();
         this.pullRequestsRevisados = userDto.pullRequestsRevisados();
+        this.seguidoresUrl = userDto.seguindoUrl();
+        this.seguindoUrl = userDto.seguindoUrl();
     }
 
     public void adicionarRepositorio(Repositorio repositorio) {

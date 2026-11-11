@@ -8,9 +8,8 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UsuarioUnicoDados(@JsonProperty("login") String userName,
                                 @JsonProperty("avatar_url") String avatar,
-                                @JsonProperty("following_url") String nomeSeguidores,
-                                @JsonProperty("followers_url") String nomeSeguindo,
-                                @JsonProperty("repos_url") String repositoriosUrl,
+                                @JsonProperty("following_url") String seguidoresUrl,
+                                @JsonProperty("followers_url") String seguindoUrl,
                                 @JsonProperty("name") String nome,
                                 @JsonProperty("bio") String bio,
                                 @JsonProperty("public_repos") Integer totalRepositorios,

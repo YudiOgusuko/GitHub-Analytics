@@ -10,6 +10,6 @@ import java.util.List;
         "userName",
         "perfil"
 })
-public record UsuarioMultiplosDto(Integer totalDeUsuarios,
-                                  List<PerfilDados> usuarios) {
+public record UsuariosMultiplosDto(Integer totalDeUsuarios,
+                                   List<PerfilDados> usuarios) {
 }

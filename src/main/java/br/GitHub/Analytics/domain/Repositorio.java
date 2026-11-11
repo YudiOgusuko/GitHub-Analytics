@@ -1,12 +1,13 @@
 package br.GitHub.Analytics.domain;
 
-import br.GitHub.Analytics.dto.repositorio.RepositorioDto;
+import br.GitHub.Analytics.dto.repositorio.RepositorioUnicoDto;
+import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "tb_repositorios")
 @Entity
@@ -28,7 +29,7 @@ public class Repositorio {
     private String descricao;
 
     @Column(nullable = false)
-    private String criadaEm;
+    private String criadoEm;
 
     @Column(nullable = false)
     private String ultimoUpdate;
@@ -37,31 +38,73 @@ public class Repositorio {
     private Integer estrelas;
 
     @Column(nullable = false)
-    private String linguagem;
-
-    @Column(nullable = false)
     private Integer forks;
 
     @Column(nullable = false)
+    private String linguagem;
+
+    @Transient
+    @JsonIgnore
+    private List<String> topicos = new ArrayList<>();
+
+    @Column(nullable = false)
     private Integer openIssues;
+
+    @Transient
+    @JsonIgnore
+    private String branches;
+
+    @Transient
+    @JsonIgnore
+    private List<String> linguagens = new ArrayList<>();
+
+    @Transient
+    @JsonIgnore
+    private String contribuidores;
+
+    @Transient
+    @JsonIgnore
+    private String commits;
+
+    @Transient
+    @JsonIgnore
+    private String issues;
+
+    @Transient
+    @JsonIgnore
+    private String pulls;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-
-    public Repositorio(RepositorioDto repositorioDto) {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-
+    public Repositorio(RepositoriosMultiplosDto repositorioDto) {
         this.nome = repositorioDto.nome();
         this.descricao = repositorioDto.descricao();
-        this.criadaEm = repositorioDto.criadaEm() != null ? formatter.format(repositorioDto.criadaEm().atZone(ZoneId.of("UTC"))) : "N/A";
-        this.ultimoUpdate = repositorioDto.criadaEm() != null ? formatter.format(repositorioDto.ultimoUpdate().atZone(ZoneId.of("UTC"))) : "N/A";
-        this.estrelas = repositorioDto.estrelas();
+        this.forks = repositorioDto.forks();
         this.linguagem = repositorioDto.linguagem();
+        this.linguagens = repositorioDto.linguagens();
+        this.estrelas = repositorioDto.estrelas();
+        this.openIssues = repositorioDto.openIssues();
+        this.topicos = repositorioDto.topicos();
+        this.ultimoUpdate = repositorioDto.ultimoUpdate();
+        this.criadoEm = repositorioDto.criadoEm();
+    }
+
+    public Repositorio(RepositorioUnicoDto repositorioDto) {
+        this.nome = repositorioDto.nome();
+        this.descricao = repositorioDto.descricao();
+        this.criadoEm = repositorioDto.criadoEm();
+        this.ultimoUpdate = repositorioDto.ultimoUpdate();
+        this.estrelas = repositorioDto.estrelas();
         this.forks = repositorioDto.forks();
         this.openIssues = repositorioDto.openIssues();
-
+        this.branches = repositorioDto.branches();
+        this.linguagens = repositorioDto.linguagens();
+        this.contribuidores = repositorioDto.contribuidores();
+        this.commits = repositorioDto.commits();
+        this.issues = repositorioDto.issues();
+        this.pulls = repositorioDto.pulls();
+        this.topicos = repositorioDto.topicos();
     }
 }

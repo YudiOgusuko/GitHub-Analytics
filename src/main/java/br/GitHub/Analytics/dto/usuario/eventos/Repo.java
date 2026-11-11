@@ -4,5 +4,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record RepoDto(@JsonProperty("name") String nome)  {
+public record Repo(@JsonProperty("name") String nome)  {
 }

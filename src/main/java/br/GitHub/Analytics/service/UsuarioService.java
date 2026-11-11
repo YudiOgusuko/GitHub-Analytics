@@ -2,15 +2,12 @@ package br.GitHub.Analytics.service;
 
 import br.GitHub.Analytics.domain.Repositorio;
 import br.GitHub.Analytics.domain.Usuario;
-import br.GitHub.Analytics.dto.repositorio.RepositorioDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioContribuicoesDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioEventosDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioMultiplosDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioUnicoDto;
+import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
+import br.GitHub.Analytics.dto.usuario.*;
 import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioMultiplosDados;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
-import br.GitHub.Analytics.dto.usuario.eventos.EventosDados;
+import br.GitHub.Analytics.dto.usuario.eventos.Eventos;
 import br.GitHub.Analytics.handler.exception.InternalServerException;
 import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
@@ -57,7 +54,7 @@ public class UsuarioService {
             throw new NotFoundException(String.format("Nenhum usuário com o username '%s' foi encontrado.", nome));
         }
 
-        List<RepositorioDto> repositorioDtos = repositorioService.buscarRepositorioNaApi(usuarioUnicoDados.repositoriosUrl());
+        List<RepositoriosMultiplosDto> repositorioDtos = repositorioService.buscarRepositoriosMultiplosNaApi(usuarioUnicoDados.userName());
         UsuarioContribuicoesDto contribuicoesDto = buscarContribuicoesNaApi(nome);
         UsuarioUnicoDto usuarioUnicoDto = new UsuarioUnicoDto(usuarioUnicoDados, repositorioDtos, contribuicoesDto);
 
@@ -68,7 +65,7 @@ public class UsuarioService {
         return usuarioUnicoDto;
     }
 
-    public UsuarioMultiplosDto buscarUsuariosMultiplosNaApi(String nome) {
+    public UsuariosMultiplosDto buscarUsuariosMultiplosNaApi(String nome) {
 
         try{
             UsuarioMultiplosDados usuarioMultiplosDados = usarRestClient(URL_GERAL, nome, UsuarioMultiplosDados.class);
@@ -77,7 +74,7 @@ public class UsuarioService {
                 throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
             }
 
-            return new UsuarioMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioMultiplosDados.perfil());
+            return new UsuariosMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioMultiplosDados.perfil());
         } catch (HttpClientErrorException e) {
             throw new InternalServerException("Erro inesperado. Por favor, tente novamente.");
         }
@@ -87,7 +84,7 @@ public class UsuarioService {
     public List<UsuarioEventosDto> buscarEventosNaApi (String nome) {
         nome = Utilitarios.tirarEspaco(nome);
 
-        List<EventosDados> eventosDados = usarRestClientLista(URL_UNICA, nome, "/events", new ParameterizedTypeReference<>(){});
+        List<Eventos> eventosDados = usarRestClientLista(nome, "/events", new ParameterizedTypeReference<>(){});
 
         if (eventosDados == null) {
             throw new NotFoundException(String.format("Nenhum evento foi encontrado para %s.", nome));
@@ -147,6 +144,52 @@ public class UsuarioService {
 
     }
 
+    public List<UsuarioSeguidoresDto> buscarSeguidores(String nome) {
+        String nomeFormatado = Utilitarios.tirarEspaco(nome);
+        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nomeFormatado);
+
+        if(usuario.isPresent()) {
+            return usarRestClientLista(usuario.get().getNome(), "/followers", new ParameterizedTypeReference<>(){});
+        }
+
+        UsuarioUnicoDto usuarioUnicoDto = buscarUsuarioUnicoNaApi(nome);
+        return buscarSeguidoresNaApi(usuarioUnicoDto.seguidoresUrl());
+
+    }
+
+    public List<UsuarioSeguidoresDto> buscarSeguidoresNaApi(String seguidoresUrl) {
+        return usarRestClientNetworking(seguidoresUrl, new ParameterizedTypeReference<>(){});
+    }
+
+    public List<UsuarioSeguindoDto> buscarSeguindo(String nome) {
+        String nomeFormatado = Utilitarios.tirarEspaco(nome);
+        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nomeFormatado);
+
+        if(usuario.isPresent()) {
+            return usarRestClientLista(usuario.get().getUserName(), "/following", new ParameterizedTypeReference<>(){});
+        }
+
+        UsuarioUnicoDto usuarioUnicoDto = buscarUsuarioUnicoNaApi(nome);
+        return buscarSeguindoNaApi(usuarioUnicoDto.seguindoUrl());
+    }
+
+    public List<UsuarioSeguindoDto> buscarSeguindoNaApi(String seguindoUrl) {
+        return usarRestClientNetworking(seguindoUrl, new ParameterizedTypeReference<>(){});
+    }
+
+    public List<RepositoriosMultiplosDto> buscarRepositoriosUsuario(String nome) {
+        nome = Utilitarios.tirarEspaco(nome);
+        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nome);
+
+        if(usuario.isPresent()) {
+            return repositorioService.buscarRepositoriosMultiplos(usuario.get().getUserName());
+        }
+
+        return repositorioService.buscarRepositoriosMultiplosNaApi(nome);
+
+    }
+
+
     private <T> T usarRestClient(String url, String uri, Class<T> responseType) {
         return restClient.get()
                 .uri(url + uri)
@@ -156,9 +199,18 @@ public class UsuarioService {
                 .body(responseType);
     }
 
-    private <T> T usarRestClientLista(String url, String nome, String uri, ParameterizedTypeReference<T> responseType) {
+    private <T> T usarRestClientLista(String usuario, String uri, ParameterizedTypeReference<T> responseType) {
         return restClient.get()
-                .uri(url + nome + uri)
+                .uri(URL_UNICA + usuario + uri)
+                .header("Authorization", "Bearer " + token)
+                .header("Accept", "application/vnd.github+json")
+                .retrieve()
+                .body(responseType);
+    }
+
+    private <T> T usarRestClientNetworking(String networkingUrl, ParameterizedTypeReference<T> responseType) {
+        return restClient.get()
+                .uri(networkingUrl)
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()

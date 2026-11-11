@@ -1,9 +1,7 @@
 package br.GitHub.Analytics.controller;
 
-import br.GitHub.Analytics.dto.usuario.UsuarioContribuicoesDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioEventosDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioMultiplosDto;
-import br.GitHub.Analytics.dto.usuario.UsuarioUnicoDto;
+import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
+import br.GitHub.Analytics.dto.usuario.*;
 import br.GitHub.Analytics.service.UsuarioService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -33,7 +31,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/multiplos")
-    public ResponseEntity<UsuarioMultiplosDto> buscarUsuariosMultiplos(
+    public ResponseEntity<UsuariosMultiplosDto> buscarUsuariosMultiplos(
             @RequestParam
             @NotBlank(message = "O nome do usuário é obrigatório.")
             @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 255 caracteres.")
@@ -57,6 +55,33 @@ public class UsuarioController {
             @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 255 caracteres.")
             String nome) {
         return ResponseEntity.ok().body(service.buscarContribuicoes(nome));
+    }
+
+    @GetMapping("/seguidores")
+    public ResponseEntity<List<UsuarioSeguidoresDto>> buscarSeguidores(
+            @RequestParam
+            @NotBlank(message = "O nome do usuário é obrigatório.")
+            @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 255 caracteres.")
+            String nome) {
+        return ResponseEntity.ok().body(service.buscarSeguidores(nome));
+    }
+
+    @GetMapping("/seguindo")
+    public ResponseEntity<List<UsuarioSeguindoDto>> buscarSeguindo(
+            @RequestParam
+            @NotBlank(message = "O nome do usuário é obrigatório.")
+            @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 255 caracteres.")
+            String nome) {
+        return ResponseEntity.ok().body(service.buscarSeguindo(nome));
+    }
+
+    @GetMapping("/repositorios")
+    public ResponseEntity<List<RepositoriosMultiplosDto>> buscarRepositorios(
+            @RequestParam
+            @NotBlank(message = "O nome do usuário é obrigatório.")
+            @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 255 caracteres.")
+            String nome) {
+        return ResponseEntity.ok().body(service.buscarRepositoriosUsuario(nome));
     }
 
 
