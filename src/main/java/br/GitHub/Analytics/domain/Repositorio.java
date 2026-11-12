@@ -45,8 +45,11 @@ public class Repositorio {
     @Column(nullable = false)
     private Integer openIssues;
 
-    @Transient
-    @JsonIgnore
+    @ElementCollection
+    @CollectionTable(
+            name = "repositorio_topicos",
+            joinColumns = @JoinColumn(name = "repositorio_id")
+    )
     private List<String> topicos = new ArrayList<>();
 
     @Transient
@@ -83,10 +86,5 @@ public class Repositorio {
         this.linguagem = repositorioDto.linguagem();
         this.openIssues = repositorioDto.openIssues();
         this.topicos = repositorioDto.topicos();
-        this.branchesUrl = repositorioDto.branchesUrl();
-        this.linguagensUsadas = repositorioDto.linguagensUsadas();
-        this.contribuidoresUrl = repositorioDto.contribuidoresUrl();
-        this.commitsUrl = repositorioDto.commitsUrl();
-        this.pullsUrl = repositorioDto.pullsUrl();
     }
 }

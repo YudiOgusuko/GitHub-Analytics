@@ -6,6 +6,7 @@ import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.databind.exc.MismatchedInputException;
@@ -51,5 +52,15 @@ public class GlobalHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> badRequestHandlerMethod(MissingServletRequestParameterException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(String.format("O parâmetro obrigatório '%s' não foi informado.", e.getParameterName()))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 }

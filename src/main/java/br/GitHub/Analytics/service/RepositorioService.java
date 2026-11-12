@@ -36,12 +36,12 @@ public class RepositorioService {
         String usuarioFormatado = Utilitarios.tirarEspaco(usuario);
 
         return usuarioRepository.findByUserNameIgnoreCase(usuarioFormatado)
-                .map(user -> repositorioRepository.findByUsuarioId(user.getId()))
+                .map(user -> repositorioRepository.findAllByUsuarioId(user.getId()))
                 .filter(repositorios -> !repositorios.isEmpty())
                 .map(repositorios -> repositorios.stream()
                         .map(RepositoriosMultiplosDto::new)
                         .toList())
-                .orElseGet(() -> buscarRepositoriosMultiplosNaApi(usuarioFormatado));
+                .orElseGet(() -> (buscarRepositoriosMultiplosNaApi(usuarioFormatado)));
     }
 
     public List<RepositoriosMultiplosDto> buscarRepositoriosMultiplosNaApi(String usuario) {

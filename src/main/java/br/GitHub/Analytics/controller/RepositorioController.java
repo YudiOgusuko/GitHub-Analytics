@@ -22,7 +22,7 @@ public class RepositorioController {
     private final RepositorioService service;
 
     @GetMapping("/multiplos")
-    public ResponseEntity<List<RepositoriosMultiplosDto>> buscarRepositorioUnico(
+    public ResponseEntity<List<RepositoriosMultiplosDto>> buscarRepositorioMultiplos(
             @RequestParam
             @NotBlank(message = "O nome do usuário é obrigatório.")
             @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 39 caracteres.")

@@ -39,7 +39,7 @@ public class UsuarioService {
 
     public UsuarioUnicoDto buscarUsuario(String nome) {
         String nomeFormatado = Utilitarios.tirarEspaco(nome);
-        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nomeFormatado);
+        Optional<Usuario> usuario = usuarioRepository.findByUserNameIgnoreCase(nomeFormatado);
 
         return usuario.map(UsuarioUnicoDto::new).orElseGet(() -> buscarUsuarioUnicoNaApi(nomeFormatado));
     }
@@ -102,7 +102,7 @@ public class UsuarioService {
     public UsuarioContribuicoesDto buscarContribuicoes(String nome) {
         nome = Utilitarios.tirarEspaco(nome);
 
-        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nome);
+        Optional<Usuario> usuario = usuarioRepository.findByUserNameIgnoreCase(nome);
         if(usuario.isPresent()) {
             return new UsuarioContribuicoesDto(usuario.get());
         }

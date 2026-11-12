@@ -8,8 +8,6 @@ import java.util.Optional;
 
 public interface IRepositorioRepository extends JpaRepository<Repositorio, Long> {
 
-    Optional<List<Repositorio>> findByusuarioId (Long id);
-
-    Optional<List<Repositorio>> findByUsuarioId (Long id);
+    List<Repositorio> findAllByUsuarioId (Long id);
 
 }
