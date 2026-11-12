@@ -24,9 +24,6 @@ public class Usuario {
     @Column(unique = true, nullable = false)
     private String userName;
 
-    @Column(unique = true, nullable = false)
-    private String avatar;
-
     @Column(nullable = false)
     private String nome;
 
@@ -68,6 +65,10 @@ public class Usuario {
 
     @Transient
     @JsonIgnore
+    private String avatar;
+
+    @Transient
+    @JsonIgnore
     private String seguidoresUrl;
 
     @Transient
@@ -80,7 +81,6 @@ public class Usuario {
     public Usuario(UsuarioUnicoDto userDto) {
         this.userName = userDto.userName();
         this.nome = userDto.nome();
-        this.avatar = userDto.perfil();
         this.bio = userDto.bio();
         this.linguagemPreferida = userDto.linguagemPreferida();
         this.repositorios = userDto.repositorios();
@@ -93,8 +93,6 @@ public class Usuario {
         this.issues = userDto.issues();
         this.pullRequests = userDto.pullRequests();
         this.pullRequestsRevisados = userDto.pullRequestsRevisados();
-        this.seguidoresUrl = userDto.seguindoUrl();
-        this.seguindoUrl = userDto.seguindoUrl();
     }
 
     public void adicionarRepositorio(Repositorio repositorio) {

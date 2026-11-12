@@ -1,14 +1,14 @@
 package br.GitHub.Analytics.handler.globalHandler;
 
+import br.GitHub.Analytics.handler.errorResponse.ErrorResponse;
 import br.GitHub.Analytics.handler.exception.InternalServerException;
 import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import br.GitHub.Analytics.handler.errorResponse.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
+import tools.jackson.databind.exc.MismatchedInputException;
 
 @RestControllerAdvice
 public class GlobalHandler {
@@ -41,5 +41,15 @@ public class GlobalHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
+
+    @ExceptionHandler(MismatchedInputException.class)
+    public ResponseEntity<ErrorResponse> badRequestException(MismatchedInputException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("Erro ao tentar desserializar o JSON.")
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

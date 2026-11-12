@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @JsonPropertyOrder({
          "userName",
          "nome",
-         "perfil",
          "bio",
          "linguagemPreferida",
          "repositorios",
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 
 public record UsuarioUnicoDto(String userName,
                               String nome,
-                              String perfil,
                               String bio,
                               String linguagemPreferida,
                               Integer repositorios,
@@ -46,35 +44,30 @@ public record UsuarioUnicoDto(String userName,
                               Integer commits,
                               Integer issues,
                               Integer pullRequests,
-                              Integer pullRequestsRevisados,
-                              String seguidoresUrl,
-                              String seguindoUrl) {
+                              Integer pullRequestsRevisados) {
 
     public UsuarioUnicoDto(UsuarioUnicoDados dados, List<RepositoriosMultiplosDto> repositorioDto, UsuarioContribuicoesDto contribuicoesDto) {
         this(dados.userName() != null ? dados.userName() : "N/A", dados.nome() != null ? dados.nome() : "N/A",
-                dados.avatar() != null ? dados.avatar() : "N/A", dados.bio() != null ? dados.bio() : "N/A",linguagemMaisUsada(repositorioDto),
+                dados.bio() != null ? dados.bio() : "N/A",linguagemMaisUsada(repositorioDto),
                 dados.totalRepositorios() != null ? dados.totalRepositorios() : 0, totalDeEstrelas(repositorioDto),
                 dados.seguidores() != null ? dados.seguidores() : 0, dados.seguindo() != null ? dados.seguindo() : 0,
                 formatarData(dados.criadoEm()), contribuicoesDto.contribuicoes(), contribuicoesDto.commits(), contribuicoesDto.issues(),
-                contribuicoesDto.pullRequests(), contribuicoesDto.pullRequestsRevisados(), dados.seguidoresUrl(), dados.seguidoresUrl());
+                contribuicoesDto.pullRequests(), contribuicoesDto.pullRequestsRevisados());
     }
 
     public UsuarioUnicoDto(Usuario usuario) {
-        this(usuario.getUserName(), usuario.getNome(), usuario.getAvatar(), usuario.getBio(), usuario.getLinguagemPreferida(),
-                usuario.getRepositorios(), usuario.getEstrelas(), usuario.getSeguidores(), usuario.getSeguindo(), usuario.getCriadoEm(),
-                usuario.getContribuicoes(), usuario.getCommits(), usuario.getIssues(),
-                usuario.getPullRequests(), usuario.getPullRequestsRevisados(), usuario.getSeguidoresUrl(), usuario.getSeguindoUrl());
+        this(usuario.getUserName(), usuario.getNome(), usuario.getBio(), usuario.getLinguagemPreferida(), usuario.getRepositorios(),
+                usuario.getEstrelas(), usuario.getSeguidores(), usuario.getSeguindo(), usuario.getCriadoEm(), usuario.getContribuicoes(),
+                usuario.getCommits(), usuario.getIssues(), usuario.getPullRequests(), usuario.getPullRequestsRevisados());
     }
 
-    private static String linguagemMaisUsada (List<RepositoriosMultiplosDto> repositorioDto) {
-        if (repositorioDto == null || repositorioDto.isEmpty()) {
+    private static String linguagemMaisUsada (List<RepositoriosMultiplosDto> linguagens) {
+        if (linguagens == null || linguagens.isEmpty()) {
             return "Nenhuma linguagem encontrada.";
         }
 
-        return repositorioDto.stream()
-                .map(RepositoriosMultiplosDto::linguagens)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
+        return linguagens.stream()
+                .map(RepositoriosMultiplosDto::linguagem)
                 .filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()

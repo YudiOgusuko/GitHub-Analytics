@@ -17,7 +17,7 @@ public class Utilitarios {
                 String formatar = p.substring(0, 1).toUpperCase()
                         + p.substring(1).toLowerCase();
 
-                stringBuilder.append(formatar).append(" ");
+                stringBuilder.append(formatar).append("_");
             }
         }
         return stringBuilder.toString().trim();

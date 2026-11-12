@@ -16,7 +16,7 @@ import java.util.Map;
         "nome",
         "descricao",
         "forks",
-        "linguagem", //outra
+        "linguagem",
         "estrelas",
         "openIssues",
         "topicos",
@@ -25,27 +25,34 @@ import java.util.Map;
 
 public record RepositoriosMultiplosDto(String nome,
                                        String descricao,
-                                       Integer forks,
-                                       String linguagem,
-                                       List<String> linguagens,
-                                       Integer estrelas,
-                                       Integer openIssues,
-                                       List<String> topicos,
+                                       String branchesUrl,
+                                       List<String> linguagensUsadas,
+                                       String contribuidoresUrl,
+                                       String commitsUrl,
+                                       String pullsUrl,
+                                       String criadoEm,
                                        String ultimoUpdate,
-                                       String criadoEm){
+                                       Integer estrelas,
+                                       String linguagem,
+                                       Integer forks,
+                                       List<String> topicos,
+                                       Integer openIssues){
 
     public RepositoriosMultiplosDto(RepositorioDados dados) {
         this(dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
-                dados.forks() != null ? dados.forks() : 0, dados.linguagem() != null ? dados.linguagem() : "N/A",
-                pegarChaves(dados.linguagens()), dados.estrelas() != null ? dados.estrelas() : 0,
-                dados.openIssues() != null ? dados.openIssues() : 0, dados.topicos() != null ? dados.topicos() : List.of(),
-                formatarData(dados.ultimoUpdate()), formatarData(dados.criadoEm()));
+                dados.branchesUrl() != null ? dados.branchesUrl() : "N/A",  List.of(dados.linguagensUrl()),
+                dados.contribuidoresUrl() != null ? dados.contribuidoresUrl() : "N/A", dados.commitsUrl() != null ? dados.commitsUrl() : "N/A",
+                dados.pullsUrl() != null ? dados.pullsUrl() : "N/A", formatarData(dados.criadoEm()), formatarData(dados.ultimoUpdate()),
+                dados.estrelas() != null ? dados.estrelas() : 0, dados.linguagem() != null ? dados.linguagem() : "N/A",
+                dados.forks() != null ? dados.forks() : 0,dados.topicos() != null ? dados.topicos() : List.of(), dados.openIssues() != null ? dados.openIssues() : 0);
     }
 
     public RepositoriosMultiplosDto(List<Repositorio> repositorio) {
-        this(repositorio.get(0).getNome(), repositorio.get(0).getDescricao(), repositorio.get(0).getForks(), repositorio.get(0).getLinguagem(),
-               repositorio.get(0).getLinguagens(), repositorio.get(0).getEstrelas(), repositorio.get(0).getOpenIssues(),
-                repositorio.get(0).getTopicos(), repositorio.get(0).getUltimoUpdate(), repositorio.get(0).getCriadoEm());
+        this(repositorio.get(0).getNome(), repositorio.get(0).getDescricao(), repositorio.get(0).getBranchesUrl(),
+                repositorio.get(0).getLinguagensUsadas(), repositorio.get(0).getContribuidoresUrl(),
+                repositorio.get(0).getCommitsUrl(), repositorio.get(0).getPullsUrl(), repositorio.get(0).getCriadoEm(),
+                repositorio.get(0).getUltimoUpdate(), repositorio.get(0).getEstrelas(), repositorio.get(0).getLinguagem(),
+                repositorio.get(0).getForks(), repositorio.get(0).getTopicos(), repositorio.get(0).getOpenIssues());
     }
 
     private static List<String> pegarChaves (Map<String, Integer> map) {

@@ -8,6 +8,7 @@ import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioMultiplosDados;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
 import br.GitHub.Analytics.dto.usuario.eventos.Eventos;
+import br.GitHub.Analytics.dto.usuario.networking.Networking;
 import br.GitHub.Analytics.handler.exception.InternalServerException;
 import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
@@ -20,9 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +73,10 @@ public class UsuarioService {
                 throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
             }
 
-            return new UsuariosMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioMultiplosDados.perfil());
+            List<UsuarioPerfisDto> usuarioPerfisDtos = new ArrayList<>();
+            usuarioMultiplosDados.perfil().forEach(u -> usuarioPerfisDtos.add(new UsuarioPerfisDto(u)));
+
+            return new UsuariosMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioPerfisDtos );
         } catch (HttpClientErrorException e) {
             throw new InternalServerException("Erro inesperado. Por favor, tente novamente.");
         }
@@ -109,6 +111,8 @@ public class UsuarioService {
     }
 
     public UsuarioContribuicoesDto buscarContribuicoesNaApi (String nome) {
+        nome = Utilitarios.tirarEspaco(nome);
+
         String query = """
         query($login: String!) {
           user(login: $login) {
@@ -144,51 +148,25 @@ public class UsuarioService {
 
     }
 
-    public List<UsuarioSeguidoresDto> buscarSeguidores(String nome) {
-        String nomeFormatado = Utilitarios.tirarEspaco(nome);
-        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nomeFormatado);
+    public UsuarioSeguidoresDto buscarSeguidoresNaApi(String usuario) {
+        usuario = Utilitarios.tirarEspaco(usuario).toLowerCase(Locale.ROOT);
+        List<Networking> networkings = usarRestClientLista(usuario, "/followers", new ParameterizedTypeReference<>(){});
 
-        if(usuario.isPresent()) {
-            return usarRestClientLista(usuario.get().getNome(), "/followers", new ParameterizedTypeReference<>(){});
-        }
+        List<UsuarioNetworkingDto> usuarioNetworkingDtos = new ArrayList<>();
+        networkings.forEach(n -> usuarioNetworkingDtos.add(new UsuarioNetworkingDto(n)));
 
-        UsuarioUnicoDto usuarioUnicoDto = buscarUsuarioUnicoNaApi(nome);
-        return buscarSeguidoresNaApi(usuarioUnicoDto.seguidoresUrl());
-
+        return new UsuarioSeguidoresDto(usuarioNetworkingDtos);
     }
 
-    public List<UsuarioSeguidoresDto> buscarSeguidoresNaApi(String seguidoresUrl) {
-        return usarRestClientNetworking(seguidoresUrl, new ParameterizedTypeReference<>(){});
+    public UsuarioSeguindoDto buscarSeguindoNaApi(String usuario) {
+        usuario = Utilitarios.tirarEspaco(usuario).toLowerCase(Locale.ROOT);
+        List<Networking> networkings = usarRestClientLista(usuario, "/following", new ParameterizedTypeReference<>(){});
+
+        List<UsuarioNetworkingDto> usuarioNetworkingDtos = new ArrayList<>();
+        networkings.forEach(n -> usuarioNetworkingDtos.add(new UsuarioNetworkingDto(n)));
+
+        return new UsuarioSeguindoDto(usuarioNetworkingDtos);
     }
-
-    public List<UsuarioSeguindoDto> buscarSeguindo(String nome) {
-        String nomeFormatado = Utilitarios.tirarEspaco(nome);
-        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nomeFormatado);
-
-        if(usuario.isPresent()) {
-            return usarRestClientLista(usuario.get().getUserName(), "/following", new ParameterizedTypeReference<>(){});
-        }
-
-        UsuarioUnicoDto usuarioUnicoDto = buscarUsuarioUnicoNaApi(nome);
-        return buscarSeguindoNaApi(usuarioUnicoDto.seguindoUrl());
-    }
-
-    public List<UsuarioSeguindoDto> buscarSeguindoNaApi(String seguindoUrl) {
-        return usarRestClientNetworking(seguindoUrl, new ParameterizedTypeReference<>(){});
-    }
-
-    public List<RepositoriosMultiplosDto> buscarRepositoriosUsuario(String nome) {
-        nome = Utilitarios.tirarEspaco(nome);
-        Optional<Usuario> usuario = usuarioRepository.findByuserNameIgnoreCase(nome);
-
-        if(usuario.isPresent()) {
-            return repositorioService.buscarRepositoriosMultiplos(usuario.get().getUserName());
-        }
-
-        return repositorioService.buscarRepositoriosMultiplosNaApi(nome);
-
-    }
-
 
     private <T> T usarRestClient(String url, String uri, Class<T> responseType) {
         return restClient.get()
@@ -202,15 +180,6 @@ public class UsuarioService {
     private <T> T usarRestClientLista(String usuario, String uri, ParameterizedTypeReference<T> responseType) {
         return restClient.get()
                 .uri(URL_UNICA + usuario + uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(responseType);
-    }
-
-    private <T> T usarRestClientNetworking(String networkingUrl, ParameterizedTypeReference<T> responseType) {
-        return restClient.get()
-                .uri(networkingUrl)
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()
