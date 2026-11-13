@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
 @RestControllerAdvice
@@ -45,7 +47,7 @@ public class GlobalHandler {
     }
 
     @ExceptionHandler(MismatchedInputException.class)
-    public ResponseEntity<ErrorResponse> badRequestException(MismatchedInputException e) {
+    public ResponseEntity<ErrorResponse> mismatchedInputException(MismatchedInputException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message("Erro ao tentar desserializar o JSON.")
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -55,9 +57,29 @@ public class GlobalHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorResponse> badRequestHandlerMethod(MissingServletRequestParameterException e) {
+    public ResponseEntity<ErrorResponse> missingServletRequestParameterMethod(MissingServletRequestParameterException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message(String.format("O parâmetro obrigatório '%s' não foi informado.", e.getParameterName()))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> noResourceFoundMethod(NoResourceFoundException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(String.format("A requisição '%s' foi realizada incorretamente.", e.getHttpMethod()))
+                .status(HttpStatus.BAD_REQUEST.value())
+                .build();
+
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    public ResponseEntity<ErrorResponse> badRequestHandlerMethod(HttpClientErrorException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("A URL usada na chamada é inválida.")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .build();
 

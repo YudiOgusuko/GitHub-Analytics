@@ -1,6 +1,8 @@
 package br.GitHub.Analytics.service;
 
-import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class Utilitarios {
 
@@ -17,7 +19,7 @@ public class Utilitarios {
                 String formatar = p.substring(0, 1).toUpperCase()
                         + p.substring(1).toLowerCase();
 
-                stringBuilder.append(formatar).append("_");
+                stringBuilder.append(formatar).append(" ");
             }
         }
         return stringBuilder.toString().trim();
@@ -38,24 +40,43 @@ public class Utilitarios {
                 stringBuilder.append(formatar);
             }
         }
-        return stringBuilder.toString().trim();
+        return stringBuilder.toString().trim().toLowerCase();
     }
 
-    public static boolean verificarCamposNull(Object object) {
-        if(object == null) {
-            return true;
+    public static String formatarRepositorioNaApi(String txt) {
+        if (txt == null || txt.isBlank()) {
+            return "";
         }
 
-        for(Field field : object.getClass().getDeclaredFields()) {
-            field.setAccessible(true);
-            try {
-                if(field.get(object) != null) {
-                    return false;
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
+        String[] palavras = txt.trim().split("\\s+");
+        String[] formatadas = new String[palavras.length];
+
+        for (int i = 0; i < palavras.length; i++) {
+            String p = palavras[i];
+            formatadas[i] = p.substring(0, 1).toUpperCase() + p.substring(1).toLowerCase();
         }
-        return true;
+
+        return String.join("-", formatadas);
+    }
+
+    public static String formatarRepositorioNoBanco(String txt) {
+        if (txt == null || txt.isBlank()) {
+            return "";
+        }
+
+        String[] palavras = txt.trim().split("\\s+");
+        String[] formatadas = new String[palavras.length];
+
+        for (int i = 0; i < palavras.length; i++) {
+            String p = palavras[i];
+            formatadas[i] = p.substring(0, 1).toUpperCase() + p.substring(1).toLowerCase();
+        }
+
+        return String.join("_", formatadas);
+    }
+
+    public static LocalDate ordenarData (String data) {
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.US);
+        return LocalDate.parse(data, dateTimeFormat);
     }
 }

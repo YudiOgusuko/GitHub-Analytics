@@ -16,6 +16,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,71 +41,75 @@ public class RepositorioService {
                 .filter(repositorios -> !repositorios.isEmpty())
                 .map(repositorios -> repositorios.stream()
                         .map(RepositoriosMultiplosDto::new)
+                        .sorted(Comparator.comparing(d -> Utilitarios.ordenarData(d.criadoEm()), Comparator.reverseOrder()))
                         .toList())
-                .orElseGet(() -> (buscarRepositoriosMultiplosNaApi(usuarioFormatado)));
+                .orElseGet(() ->(buscarRepositoriosMultiplosNaApi(usuarioFormatado)));
     }
 
     public List<RepositoriosMultiplosDto> buscarRepositoriosMultiplosNaApi(String usuario) {
         usuario = Utilitarios.tirarEspaco(usuario);
 
-        List<RepositorioDados> repositorioDados = usarRestClientLista(URL_USUARIO, usuario, "/repos", new ParameterizedTypeReference<>() {});
+        List<RepositorioDados> repositorioDados = usarRestClientLista(usuario, new ParameterizedTypeReference<>() {});
 
-        if(repositorioDados == null) {
+        if(repositorioDados == null || repositorioDados.isEmpty()) {
             throw new NotFoundException(String.format("Nenhum repositório foi encontrado para o usuário '%s'.", usuario));
         }
 
         return repositorioDados.stream()
                 .map(RepositoriosMultiplosDto::new)
+                .sorted(Comparator.comparing(d -> Utilitarios.ordenarData(d.criadoEm()), Comparator.reverseOrder()))
                 .toList();
     }
 
     public RepositorioUnicoDto buscarRepositorioUnicoNaApi(String usuario, String repositorio) {
-        usuario = Utilitarios.tirarEspaco(usuario).toLowerCase();
-        String uri = "/" + Utilitarios.formatarString(repositorio);
+        usuario = Utilitarios.tirarEspaco(usuario);
 
-        List<RepositorioDados> repositorioDados = usarRestClientLista(URL_REPOSITORIO, usuario, uri, new ParameterizedTypeReference<>() {});
+        if(usuarioRepository.existsByUserNameIgnoreCase(usuario)) {
+            repositorio = Utilitarios.formatarRepositorioNoBanco(repositorio);
+        } else {
+            repositorio = Utilitarios.formatarRepositorioNaApi(repositorio);
+        }
 
-        if(repositorioDados == null || repositorioDados.isEmpty()) {
+        String uriRepositorio = String.format("%s/%s", usuario, repositorio);
+        RepositorioDados repositorioDados = usarRestClient(uriRepositorio);
+
+        if(repositorioDados == null) {
             throw new NotFoundException(String.format("Repositório '%s' não encontrado para o usuário '%s'.", repositorio, usuario));
         }
 
-        List<Branches> branches = usarRestClientParaDadosDoRepositorio(usuario, uri, "/branches", new ParameterizedTypeReference<>() {});
-        Map<String, Integer> linguagens = usarRestClientParaLinguagens(usuario, uri);
-        List<Contribuidores> contribuidores = usarRestClientParaDadosDoRepositorio(usuario, uri, "/contributors", new ParameterizedTypeReference<>() {});
-        List<Commits> commits = usarRestClientParaDadosDoRepositorio(usuario, uri, "/commits", new ParameterizedTypeReference<>() {});
-        List<Pulls> pulls = usarRestClientParaDadosDoRepositorio(usuario, uri, "/pulls", new ParameterizedTypeReference<>() {});
+        List<Branches> branches = usarRestClientUnicoRepositorio(uriRepositorio + "/branches", new ParameterizedTypeReference<>() {});
+        Map<String, Integer> linguagens = usarRestClientUnicoRepositorio(uriRepositorio + "/languages", new ParameterizedTypeReference<>() {});
+        List<Contribuidores> contribuidores = usarRestClientUnicoRepositorio(uriRepositorio + "/contributors", new ParameterizedTypeReference<>() {});
+        List<Commits> commits = usarRestClientUnicoRepositorio(uriRepositorio + "/commits", new ParameterizedTypeReference<>() {});
+        List<Pulls> pulls = usarRestClientUnicoRepositorio(uriRepositorio + "/pulls", new ParameterizedTypeReference<>() {});
 
         return new RepositorioUnicoDto(repositorioDados, branches, linguagens, contribuidores, commits, pulls);
     }
 
-    private <T> T usarRestClientLista(String url, String usuario, String uri, ParameterizedTypeReference<T> responseType) {
+    private RepositorioDados usarRestClient(String uri) {
         return restClient.get()
-                .uri(url + usuario + uri)
+                .uri(URL_REPOSITORIO + uri)
+                .header("Authorization", "Bearer " + token)
+                .header("Accept", "application/vnd.github+json")
+                .retrieve()
+                .body(RepositorioDados.class);
+    }
+
+    private <T> T usarRestClientLista(String usuario, ParameterizedTypeReference<T> responseType) {
+        return restClient.get()
+                .uri(URL_USUARIO + usuario + "/repos")
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()
                 .body(responseType);
     }
 
-    private <T> T usarRestClientParaDadosDoRepositorio(String usuario, String uri, String complemento, ParameterizedTypeReference<T> responseType) {
-        String uriCompleta = usuario + uri + complemento;
-
+    private <T> T usarRestClientUnicoRepositorio(String uri, ParameterizedTypeReference<T> responseType) {
         return restClient.get()
-                .uri(URL_REPOSITORIO + uriCompleta)
+                .uri(URL_REPOSITORIO + uri)
                 .header("Authorization", "Bearer " + token)
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()
                 .body(responseType);
-    }
-
-    private Map<String, Integer> usarRestClientParaLinguagens(String usuario, String uri) {
-        String uriCompleta = usuario + uri + "/languages";
-
-        return restClient.get()
-                .uri(URL_REPOSITORIO + uriCompleta)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
     }
 }

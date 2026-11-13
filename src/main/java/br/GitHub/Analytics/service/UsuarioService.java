@@ -49,7 +49,7 @@ public class UsuarioService {
 
         UsuarioUnicoDados usuarioUnicoDados = usarRestClient(URL_UNICA, nome, UsuarioUnicoDados.class);
 
-        if(usuarioUnicoDados == null || Utilitarios.verificarCamposNull(usuarioUnicoDados)) {
+        if(usuarioUnicoDados == null) {
             throw new NotFoundException(String.format("Nenhum usuário com o username '%s' foi encontrado.", nome));
         }
 
@@ -69,7 +69,7 @@ public class UsuarioService {
         try{
             UsuarioMultiplosDados usuarioMultiplosDados = usarRestClient(URL_GERAL, nome, UsuarioMultiplosDados.class);
 
-            if(usuarioMultiplosDados == null || Utilitarios.verificarCamposNull(usuarioMultiplosDados)) {
+            if(usuarioMultiplosDados == null) {
                 throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
             }
 
@@ -96,6 +96,7 @@ public class UsuarioService {
 
         return eventosDados.stream()
                 .map(UsuarioEventosDto::new)
+                .sorted(Comparator.comparing(d -> Utilitarios.ordenarData(d.criadoEm()), Comparator.reverseOrder()))
                 .toList();
     }
 

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RepositorioDados(@JsonProperty("name") String nome,
@@ -22,5 +21,4 @@ public record RepositorioDados(@JsonProperty("name") String nome,
                                @JsonProperty("forks_count") Integer forks,
                                @JsonProperty("topics") List<String> topicos,
                                @JsonProperty("open_issues") Integer openIssues) {
-
 }

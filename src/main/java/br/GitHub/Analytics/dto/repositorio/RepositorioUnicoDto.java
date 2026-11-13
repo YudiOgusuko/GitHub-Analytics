@@ -17,7 +17,7 @@ import java.util.Map;
         "commits",
         "branches",
         "issues",
-        "pulls",
+        "pullsRequests",
         "forks",
         "estrelas",
         "linguagemPrincipal",
@@ -30,7 +30,7 @@ public record RepositorioUnicoDto(String nome,
                                   Integer commits,
                                   Integer branches,
                                   Integer issues,
-                                  Integer pulls,
+                                  Integer pullsRequests,
                                   Integer forks,
                                   Integer estrelas,
                                   String linguagemPrincipal,
@@ -38,12 +38,12 @@ public record RepositorioUnicoDto(String nome,
                                   List<Contribuidores> contribuidores,
                                   List<String> topicos){
 
-    public RepositorioUnicoDto(List<RepositorioDados> dados, List<Branches> branches, Map<String, Integer> linguagens,  List<Contribuidores> contribuidores, List<Commits> commits, List<Pulls> pulls) {
-        this(dados.get(0).nome() != null ? dados.get(0).nome() : "N/A", dados.get(0).descricao() != null ? dados.get(0).descricao() : "N/A",
-            contarLista(commits), contarLista(branches), dados.get(0).openIssues() != null ? dados.get(0).openIssues() : 0, contarLista(pulls),
-                dados.get(0).forks() != null ? dados.get(0).forks() : 0, dados.get(0).estrelas() != null ? dados.get(0).estrelas() : 0,
-                dados.get(0).linguagem() != null ? dados.get(0).linguagem() : "N/A", pegarChaves(linguagens), contribuidores,
-                dados.get(0).topicos() != null ? dados.get(0).topicos() : List.of());
+    public RepositorioUnicoDto(RepositorioDados dados, List<Branches> branches, Map<String, Integer> linguagens,  List<Contribuidores> contribuidores, List<Commits> commits, List<Pulls> pulls) {
+        this(dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
+            contarLista(commits), contarLista(branches), dados.openIssues() != null ? dados.openIssues() : 0, contarLista(pulls),
+                dados.forks() != null ? dados.forks() : 0, dados.estrelas() != null ? dados.estrelas() : 0,
+                dados.linguagem() != null ? dados.linguagem() : "N/A", pegarChaves(linguagens), contribuidores,
+                dados.topicos() != null ? dados.topicos() : List.of());
     }
 
 
