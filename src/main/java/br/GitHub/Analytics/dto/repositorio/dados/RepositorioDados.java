@@ -7,7 +7,8 @@ import java.time.Instant;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record RepositorioDados(@JsonProperty("name") String nome,
+public record RepositorioDados(@JsonProperty("id") Integer id,
+                               @JsonProperty("name") String nome,
                                @JsonProperty("description") String descricao,
                                @JsonProperty("branches_url") String branchesUrl,
                                @JsonProperty("languages_url") String linguagensUrl,
@@ -21,4 +22,5 @@ public record RepositorioDados(@JsonProperty("name") String nome,
                                @JsonProperty("forks_count") Integer forks,
                                @JsonProperty("topics") List<String> topicos,
                                @JsonProperty("open_issues") Integer openIssues) {
+
 }

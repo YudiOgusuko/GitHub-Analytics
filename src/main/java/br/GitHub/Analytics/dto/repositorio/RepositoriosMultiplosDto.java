@@ -2,6 +2,7 @@ package br.GitHub.Analytics.dto.repositorio;
 
 import br.GitHub.Analytics.domain.Repositorio;
 import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.Instant;
@@ -21,7 +22,8 @@ import java.util.Locale;
         "ultimoUpdate",
         "criadoEm"})
 
-public record RepositoriosMultiplosDto(String nome,
+public record RepositoriosMultiplosDto(@JsonIgnore Integer id,
+                                       String nome,
                                        String descricao,
                                        String criadoEm,
                                        String ultimoUpdate,
@@ -32,20 +34,20 @@ public record RepositoriosMultiplosDto(String nome,
                                        Integer openIssues){
 
     public RepositoriosMultiplosDto(RepositorioDados dados) {
-        this(dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
+        this(dados.id() != null ? dados.id() : 0, dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
                 formatarData(dados.criadoEm()), formatarData(dados.ultimoUpdate()), dados.estrelas() != null ? dados.estrelas() : 0,
                 dados.linguagem() != null ? dados.linguagem() : "N/A", dados.forks() != null ? dados.forks() : 0,
                 dados.topicos() != null ? dados.topicos() : List.of(), dados.openIssues() != null ? dados.openIssues() : 0);
     }
 
     public RepositoriosMultiplosDto(Repositorio repositorio) {
-        this(repositorio.getNome(), repositorio.getDescricao(), repositorio.getCriadoEm(),
+        this(repositorio.getRepositorioId(), repositorio.getNome(), repositorio.getDescricao(), repositorio.getCriadoEm(),
                 repositorio.getUltimoUpdate(), repositorio.getEstrelas(), repositorio.getLinguagem(),
                 repositorio.getForks(), repositorio.getTopicos(), repositorio.getOpenIssues());
     }
 
     private static String formatarData(Instant instant) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.US);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
         return formatter.format(instant.atZone(ZoneId.of("UTC")));
     }
 }

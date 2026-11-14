@@ -1,6 +1,8 @@
 package br.GitHub.Analytics.service;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -43,7 +45,7 @@ public class Utilitarios {
         return stringBuilder.toString().trim().toLowerCase();
     }
 
-    public static String formatarRepositorioNaApi(String txt) {
+    public static String formatarNomeRepositorioNoBanco(String txt) {
         if (txt == null || txt.isBlank()) {
             return "";
         }
@@ -59,7 +61,7 @@ public class Utilitarios {
         return String.join("-", formatadas);
     }
 
-    public static String formatarRepositorioNoBanco(String txt) {
+    public static String formatarNomeRepositorioApi(String txt) {
         if (txt == null || txt.isBlank()) {
             return "";
         }
@@ -78,5 +80,16 @@ public class Utilitarios {
     public static LocalDate ordenarData (String data) {
         DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.US);
         return LocalDate.parse(data, dateTimeFormat);
+    }
+
+    public static LocalDate formatarDataRepositorio (String data) {
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
+        return LocalDate.parse(data, dateTimeFormat);
+    }
+
+    public static String formatarDataSincronia(Instant data) {
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy HH mm ss", Locale.forLanguageTag("pt-BR"))
+                .withZone(ZoneId.of("America/Sao_Paulo"));
+        return dateTimeFormat.format(data);
     }
 }

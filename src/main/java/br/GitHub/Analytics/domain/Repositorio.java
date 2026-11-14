@@ -1,12 +1,15 @@
 package br.GitHub.Analytics.domain;
 
 import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
+import br.GitHub.Analytics.repository.IRepositorioRepository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Table(name = "tb_repositorios")
 @Entity
@@ -20,6 +23,10 @@ public class Repositorio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    @JsonIgnore
+    private Integer repositorioId;
 
     @Column(unique = true, nullable = false)
     private String nome;
@@ -77,6 +84,7 @@ public class Repositorio {
     private Usuario usuario;
 
     public Repositorio(RepositoriosMultiplosDto repositorioDto) {
+        this.repositorioId = repositorioDto.id();
         this.nome = repositorioDto.nome();
         this.descricao = repositorioDto.descricao();
         this.criadoEm = repositorioDto.criadoEm();
@@ -86,5 +94,31 @@ public class Repositorio {
         this.linguagem = repositorioDto.linguagem();
         this.openIssues = repositorioDto.openIssues();
         this.topicos = repositorioDto.topicos();
+    }
+
+    public static void temDadosDiferentes(Usuario usuario, List<RepositoriosMultiplosDto> repositorioDaApi, IRepositorioRepository repositorioRepository) {
+        Map<Integer, Repositorio> repositorioId = repositorioRepository.findAllByUsuarioId(usuario.getId()).stream()
+                .collect(Collectors.toMap(Repositorio::getRepositorioId, r -> r));
+
+        for (RepositoriosMultiplosDto dto : repositorioDaApi) {
+            Repositorio existente = repositorioId.get(dto.id());
+            if (existente != null) {
+                existente.atualizarDados(dto);
+            } else {
+                usuario.adicionarRepositorio(new Repositorio(dto));
+            }
+        }
+    }
+
+    public void atualizarDados(RepositoriosMultiplosDto repositorioNaApi) {
+        this.nome = repositorioNaApi.nome();
+        this.descricao = repositorioNaApi.descricao();
+        this.criadoEm = repositorioNaApi.criadoEm();
+        this.ultimoUpdate = repositorioNaApi.ultimoUpdate();
+        this.estrelas = repositorioNaApi.estrelas();
+        this.forks = repositorioNaApi.forks();
+        this.linguagem = repositorioNaApi.linguagem();
+        this.openIssues = repositorioNaApi.openIssues();
+        this.topicos = repositorioNaApi.topicos();
     }
 }

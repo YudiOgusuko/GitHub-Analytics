@@ -6,6 +6,7 @@ import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -67,7 +68,7 @@ public class GlobalHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorResponse> noResourceFoundMethod(NoResourceFoundException e) {
+    public ResponseEntity<ErrorResponse> noResourceFoundException(NoResourceFoundException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message(String.format("A requisição '%s' foi realizada incorretamente.", e.getHttpMethod()))
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -77,12 +78,22 @@ public class GlobalHandler {
     }
 
     @ExceptionHandler(HttpClientErrorException.class)
-    public ResponseEntity<ErrorResponse> badRequestHandlerMethod(HttpClientErrorException e) {
+    public ResponseEntity<ErrorResponse> httpClientErrorException(HttpClientErrorException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message("A URL usada na chamada é inválida.")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .build();
 
         return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message(String.format("O método de requisição '%s' é inválido. Por favor, verifique o construtor.", e.getMethod()))
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
     }
 }

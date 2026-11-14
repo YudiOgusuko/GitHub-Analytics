@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api.github/repos")
 @RequiredArgsConstructor
+@RequestMapping("/api.github/repos")
 public class RepositorioController {
 
     private final RepositorioService service;

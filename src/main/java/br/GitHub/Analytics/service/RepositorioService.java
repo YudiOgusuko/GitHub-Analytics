@@ -41,7 +41,7 @@ public class RepositorioService {
                 .filter(repositorios -> !repositorios.isEmpty())
                 .map(repositorios -> repositorios.stream()
                         .map(RepositoriosMultiplosDto::new)
-                        .sorted(Comparator.comparing(d -> Utilitarios.ordenarData(d.criadoEm()), Comparator.reverseOrder()))
+                        .sorted(Comparator.comparing(d -> Utilitarios.formatarDataRepositorio(d.criadoEm()), Comparator.reverseOrder()))
                         .toList())
                 .orElseGet(() ->(buscarRepositoriosMultiplosNaApi(usuarioFormatado)));
     }
@@ -57,7 +57,7 @@ public class RepositorioService {
 
         return repositorioDados.stream()
                 .map(RepositoriosMultiplosDto::new)
-                .sorted(Comparator.comparing(d -> Utilitarios.ordenarData(d.criadoEm()), Comparator.reverseOrder()))
+                .sorted(Comparator.comparing(d -> Utilitarios.formatarDataRepositorio(d.criadoEm()), Comparator.reverseOrder()))
                 .toList();
     }
 
@@ -65,9 +65,9 @@ public class RepositorioService {
         usuario = Utilitarios.tirarEspaco(usuario);
 
         if(usuarioRepository.existsByUserNameIgnoreCase(usuario)) {
-            repositorio = Utilitarios.formatarRepositorioNoBanco(repositorio);
+            repositorio = Utilitarios.formatarNomeRepositorioNoBanco(repositorio);
         } else {
-            repositorio = Utilitarios.formatarRepositorioNaApi(repositorio);
+            repositorio = Utilitarios.formatarNomeRepositorioApi(repositorio);
         }
 
         String uriRepositorio = String.format("%s/%s", usuario, repositorio);

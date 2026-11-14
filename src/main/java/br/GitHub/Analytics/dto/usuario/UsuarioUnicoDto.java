@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
          "commits",
          "issues",
          "pullRequests",
-         "pullRequestsRevisados",
          "seguidores",
          "seguindo",
          "criadoEm"})
@@ -43,8 +42,7 @@ public record UsuarioUnicoDto(String userName,
                               Integer contribuicoes,
                               Integer commits,
                               Integer issues,
-                              Integer pullRequests,
-                              Integer pullRequestsRevisados) {
+                              Integer pullRequests) {
 
     public UsuarioUnicoDto(UsuarioUnicoDados dados, List<RepositoriosMultiplosDto> repositorioDto, UsuarioContribuicoesDto contribuicoesDto) {
         this(dados.userName() != null ? dados.userName() : "N/A", dados.nome() != null ? dados.nome() : "N/A",
@@ -52,13 +50,13 @@ public record UsuarioUnicoDto(String userName,
                 dados.totalRepositorios() != null ? dados.totalRepositorios() : 0, totalDeEstrelas(repositorioDto),
                 dados.seguidores() != null ? dados.seguidores() : 0, dados.seguindo() != null ? dados.seguindo() : 0,
                 formatarData(dados.criadoEm()), contribuicoesDto.contribuicoes(), contribuicoesDto.commits(), contribuicoesDto.issues(),
-                contribuicoesDto.pullRequests(), contribuicoesDto.pullRequestsRevisados());
+                contribuicoesDto.pullRequests());
     }
 
     public UsuarioUnicoDto(Usuario usuario) {
         this(usuario.getUserName(), usuario.getNome(), usuario.getBio(), usuario.getLinguagemPreferida(), usuario.getRepositorios(),
                 usuario.getEstrelas(), usuario.getSeguidores(), usuario.getSeguindo(), usuario.getCriadoEm(), usuario.getContribuicoes(),
-                usuario.getCommits(), usuario.getIssues(), usuario.getPullRequests(), usuario.getPullRequestsRevisados());
+                usuario.getCommits(), usuario.getIssues(), usuario.getPullRequests());
     }
 
     private static String linguagemMaisUsada (List<RepositoriosMultiplosDto> linguagens) {
@@ -80,8 +78,8 @@ public record UsuarioUnicoDto(String userName,
         return repositorioDto.stream().mapToInt(RepositoriosMultiplosDto::estrelas).sum();
     }
 
-    private static String formatarData (Instant data) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH);
-        return formatter.format(data.atZone(ZoneId.of("UTC")));
+    private static String formatarData(Instant instant) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
+        return formatter.format(instant.atZone(ZoneId.of("UTC")));
     }
 }
