@@ -22,7 +22,7 @@ import java.util.Locale;
         "ultimoUpdate",
         "criadoEm"})
 
-public record RepositoriosMultiplosDto(@JsonIgnore Integer id,
+public record RepositoriosMultiplosDto(@JsonIgnore Long id,
                                        String nome,
                                        String descricao,
                                        String criadoEm,

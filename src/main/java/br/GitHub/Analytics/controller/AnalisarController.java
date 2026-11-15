@@ -28,7 +28,7 @@ public class AnalisarController {
     }
 
     @GetMapping ("/historico")
-    public ResponseEntity<List<SnapshotDto>> verHistorico(
+    public ResponseEntity<List<SnapshotDto>> verHistoricoDeMudancaDeDados(
             @RequestParam
             @NotBlank(message = "O nome do usuário é obrigatório.")
             @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 39 caracteres.")

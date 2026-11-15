@@ -2,6 +2,7 @@ package br.GitHub.Analytics.service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -91,5 +92,10 @@ public class Utilitarios {
         DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy HH mm ss", Locale.forLanguageTag("pt-BR"))
                 .withZone(ZoneId.of("America/Sao_Paulo"));
         return dateTimeFormat.format(data);
+    }
+
+    public static LocalDateTime formatarDataHistorico (String data) {
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("dd MMM yyyy HH mm ss", Locale.forLanguageTag("pt-BR"));
+        return LocalDateTime.parse(data, dateTimeFormat);
     }
 }

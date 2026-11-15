@@ -7,7 +7,7 @@ import java.time.Instant;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record RepositorioDados(@JsonProperty("id") Integer id,
+public record RepositorioDados(@JsonProperty("id") Long id,
                                @JsonProperty("name") String nome,
                                @JsonProperty("description") String descricao,
                                @JsonProperty("branches_url") String branchesUrl,

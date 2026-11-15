@@ -8,6 +8,7 @@ import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioMultiplosDados;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
 import br.GitHub.Analytics.dto.usuario.eventos.Eventos;
+import br.GitHub.Analytics.dto.usuario.linguagensMaisUsadas.LinguagensMaisUsadas;
 import br.GitHub.Analytics.dto.usuario.networking.Networking;
 import br.GitHub.Analytics.handler.exception.InternalServerException;
 import br.GitHub.Analytics.handler.exception.NoContentException;
@@ -22,6 +23,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -185,5 +188,26 @@ public class UsuarioService {
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()
                 .body(responseType);
+    }
+
+    public LinguagensMaisUsadas rankingLinguagens(String nome) {
+        UsuarioUnicoDto usuarioDto = buscarUsuario(nome);
+
+        List<RepositoriosMultiplosDto> repositorios = repositorioService.buscarRepositoriosMultiplos(usuarioDto.userName());
+
+        List<String> linguagens = repositorios.stream()
+                .map(RepositoriosMultiplosDto::linguagem)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(
+                        Function.identity(),
+                        Collectors.counting()
+                ))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        return new LinguagensMaisUsadas(usuarioDto.userName(), linguagens);
     }
 }

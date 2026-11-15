@@ -1,5 +1,6 @@
 package br.GitHub.Analytics.domain;
 
+import br.GitHub.Analytics.dto.snapshot.resultadoRepositorio.ResultadoRepositorios;
 import br.GitHub.Analytics.service.Utilitarios;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +20,7 @@ public class Snapshot {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String userName;
 
     @Column(nullable = false)
@@ -53,6 +54,21 @@ public class Snapshot {
     private Integer pullRequests;
 
     @Column(nullable = false)
+    private Integer repositoriosAdicionados;
+
+    @Column(nullable = false)
+    private Integer repositoriosAtualizados;
+
+    @Column(nullable = false)
+    private Integer repositoriosRemovidos;
+
+    @Column(nullable = false)
+    private String alterouTabelaUsuarios;
+
+    @Column(nullable = false)
+    private String alterouTabelaRepositorios;
+
+    @Column(nullable = false)
     private String sincronizadoEm;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,5 +88,26 @@ public class Snapshot {
         this.issues = usuario.getIssues();
         this.pullRequests = usuario.getPullRequests();
         this.sincronizadoEm = Utilitarios.formatarDataSincronia(Instant.now());
+    }
+
+    public void tabelaUsuarioFoiAlterada(Boolean valor) {
+        String resultado = "Não";
+        if(valor) resultado = "Sim";
+        this.alterouTabelaUsuarios = resultado;
+    }
+
+    public void repositoriosAlterados(ResultadoRepositorios r, Integer quantidadeBanco, Integer quantidadeApi) {
+        this.repositoriosAdicionados = r.adicionados();
+        this.repositoriosAtualizados = r.atualizados();
+
+        int quantidade = 0;
+        if(quantidadeApi < quantidadeBanco) quantidade = quantidadeBanco - quantidadeApi;
+        this.repositoriosRemovidos = quantidade;
+    }
+
+    public void tabelaRepositorioFoiAlterada(ResultadoRepositorios r) {
+        String resultado = "Não";
+        if(r.houveAlteracao() || getRepositoriosRemovidos() > 0) resultado = "Sim";
+        this.alterouTabelaRepositorios = resultado;
     }
 }

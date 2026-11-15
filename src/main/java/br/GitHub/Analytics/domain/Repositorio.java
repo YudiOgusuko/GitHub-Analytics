@@ -1,14 +1,13 @@
 package br.GitHub.Analytics.domain;
 
 import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
+import br.GitHub.Analytics.dto.snapshot.resultadoRepositorio.ResultadoRepositorios;
 import br.GitHub.Analytics.repository.IRepositorioRepository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Table(name = "tb_repositorios")
@@ -26,7 +25,7 @@ public class Repositorio {
 
     @Column(unique = true, nullable = false)
     @JsonIgnore
-    private Integer repositorioId;
+    private Long repositorioId;
 
     @Column(unique = true, nullable = false)
     private String nome;
@@ -96,29 +95,50 @@ public class Repositorio {
         this.topicos = repositorioDto.topicos();
     }
 
-    public static void temDadosDiferentes(Usuario usuario, List<RepositoriosMultiplosDto> repositorioDaApi, IRepositorioRepository repositorioRepository) {
-        Map<Integer, Repositorio> repositorioId = repositorioRepository.findAllByUsuarioId(usuario.getId()).stream()
+    public static ResultadoRepositorios temDadosDiferentes(Usuario usuario, List<RepositoriosMultiplosDto> repositorioDaApi, IRepositorioRepository repositorioRepository) {
+        Map<Long, Repositorio> repositorioId = repositorioRepository.findAllByUsuarioId(usuario.getId()).stream()
                 .collect(Collectors.toMap(Repositorio::getRepositorioId, r -> r));
+
+        int atualizados = 0;
+        int adicionados = 0;
 
         for (RepositoriosMultiplosDto dto : repositorioDaApi) {
             Repositorio existente = repositorioId.get(dto.id());
             if (existente != null) {
-                existente.atualizarDados(dto);
+                if(existente.atualizarDados(dto)) atualizados++;
             } else {
                 usuario.adicionarRepositorio(new Repositorio(dto));
+                adicionados++;
             }
         }
+        return new ResultadoRepositorios(adicionados, atualizados);
     }
 
-    public void atualizarDados(RepositoriosMultiplosDto repositorioNaApi) {
-        this.nome = repositorioNaApi.nome();
-        this.descricao = repositorioNaApi.descricao();
-        this.criadoEm = repositorioNaApi.criadoEm();
-        this.ultimoUpdate = repositorioNaApi.ultimoUpdate();
-        this.estrelas = repositorioNaApi.estrelas();
-        this.forks = repositorioNaApi.forks();
-        this.linguagem = repositorioNaApi.linguagem();
-        this.openIssues = repositorioNaApi.openIssues();
-        this.topicos = repositorioNaApi.topicos();
+    public boolean atualizarDados(RepositoriosMultiplosDto dto) {
+        boolean mudou = !Objects.equals(this.estrelas, dto.estrelas())
+                || !Objects.equals(this.forks, dto.forks())
+                || !Objects.equals(this.descricao, dto.descricao())
+                || !Objects.equals(this.linguagem, dto.linguagem())
+                || !Objects.equals(this.openIssues, dto.openIssues())
+                || !mesmosTopicos(this.topicos, dto.topicos());
+
+        if (mudou) {
+            this.repositorioId = dto.id();
+            this.nome = dto.nome();
+            this.descricao = dto.descricao();
+            this.criadoEm = dto.criadoEm();
+            this.ultimoUpdate = dto.ultimoUpdate();
+            this.estrelas = dto.estrelas();
+            this.forks = dto.forks();
+            this.linguagem = dto.linguagem();
+            this.openIssues = dto.openIssues();
+            this.topicos = dto.topicos();
+        }
+        return mudou;
+    }
+
+    private static boolean mesmosTopicos(List<String> a, List<String> b) {
+        return new HashSet<>(a == null ? List.of() : a)
+                .equals(new HashSet<>(b == null ? List.of() : b));
     }
 }

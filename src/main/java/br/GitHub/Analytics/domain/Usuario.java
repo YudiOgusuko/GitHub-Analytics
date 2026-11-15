@@ -112,15 +112,17 @@ public class Usuario {
         snapshot.setUsuario(this);
     }
 
-    public void temDadosDiferentes(Usuario user, UsuarioUnicoDto userDto) {
-        if(!Objects.equals(user.getUserName(), userDto.userName()) || !Objects.equals(user.getNome(), userDto.nome()) || !Objects.equals(user.bio, userDto.bio())
-                || !Objects.equals(user.linguagemPreferida, userDto.linguagemPreferida()) || !Objects.equals(user.repositorios, userDto.repositorios())
-                || !Objects.equals(user.estrelas, userDto.estrelas()) || !Objects.equals(user.seguidores, userDto.seguidores()) || !Objects.equals(user.seguindo, userDto.seguindo())
-                || !Objects.equals(user.criadoEm, userDto.criadoEm()) || !Objects.equals(user.contribuicoes, userDto.contribuicoes()) || !Objects.equals(user.commits, userDto.commits())
-                || !Objects.equals(user.issues, userDto.issues()) || !Objects.equals(user.pullRequests, userDto.pullRequests())) {
+    public Boolean temDadosDiferentes(Usuario user, UsuarioUnicoDto userDto) {
+        if(!Objects.equals(user.getUserName(), userDto.userName()) || !Objects.equals(user.getNome(), userDto.nome()) || !Objects.equals(user.getBio(), userDto.bio())
+                || !Objects.equals(user.getLinguagemPreferida(), userDto.linguagemPreferida()) || !Objects.equals(user.getRepositorios(), userDto.repositorios())
+                || !Objects.equals(user.getEstrelas(), userDto.estrelas()) || !Objects.equals(user.getSeguidores(), userDto.seguidores()) || !Objects.equals(user.getSeguindo(), userDto.seguindo())
+                || !Objects.equals(user.getCriadoEm(), userDto.criadoEm()) || !Objects.equals(user.getContribuicoes(), userDto.contribuicoes()) || !Objects.equals(user.getCommits(), userDto.commits())
+                || !Objects.equals(user.getIssues(), userDto.issues()) || !Objects.equals(user.getPullRequests(), userDto.pullRequests())) {
 
             user.atualizarDados(userDto);
+            return true;
         }
+        return false;
     }
 
     public void atualizarDados(UsuarioUnicoDto dto) {

@@ -1,6 +1,7 @@
 package br.GitHub.Analytics.controller;
 
 import br.GitHub.Analytics.dto.usuario.*;
+import br.GitHub.Analytics.dto.usuario.linguagensMaisUsadas.LinguagensMaisUsadas;
 import br.GitHub.Analytics.service.UsuarioService;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -71,5 +72,14 @@ public class UsuarioController {
             @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 39 caracteres.")
             String nome) {
         return ResponseEntity.ok().body(service.buscarSeguindoNaApi(nome));
+    }
+
+    @GetMapping("/rankingLinguagens")
+    public ResponseEntity<LinguagensMaisUsadas> rankingLinguagens(
+            @RequestParam
+            @NotBlank(message = "O nome do usuário é obrigatório.")
+            @Size(min = 1, max = 39, message = "Mínimo de 1 e máximo de 39 caracteres.")
+            String nome) {
+        return ResponseEntity.ok().body(service.rankingLinguagens(nome));
     }
 }
