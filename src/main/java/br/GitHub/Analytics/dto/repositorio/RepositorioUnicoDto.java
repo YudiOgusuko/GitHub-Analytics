@@ -51,18 +51,13 @@ public record RepositorioUnicoDto(String nome,
         List<String> linguagens = new ArrayList<>();
 
         for(String chave : map.keySet()) {
-            if(chave != null && !chave.equalsIgnoreCase("N/A")) {
-                linguagens.add(chave);
-            }
+            if(chave != null && !chave.equalsIgnoreCase("N/A")) linguagens.add(chave);
         }
         return linguagens;
     }
 
     private static Integer contarLista (List<?> lista) {
-        if (lista == null || lista.isEmpty()) {
-            return 0;
-        }
-
+        if (lista == null || lista.isEmpty()) return 0;
         return lista.size();
     }
 }

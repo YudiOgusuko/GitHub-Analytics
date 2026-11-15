@@ -3,13 +3,10 @@ package br.GitHub.Analytics.dto.usuario;
 import br.GitHub.Analytics.domain.Usuario;
 import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
+import br.GitHub.Analytics.service.Utilitarios;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -49,7 +46,7 @@ public record UsuarioUnicoDto(String userName,
                 dados.bio() != null ? dados.bio() : "N/A",linguagemMaisUsada(repositorioDto),
                 dados.totalRepositorios() != null ? dados.totalRepositorios() : 0, totalDeEstrelas(repositorioDto),
                 dados.seguidores() != null ? dados.seguidores() : 0, dados.seguindo() != null ? dados.seguindo() : 0,
-                formatarData(dados.criadoEm()), contribuicoesDto.contribuicoes(), contribuicoesDto.commits(), contribuicoesDto.issues(),
+                Utilitarios.formatarDataParaString(dados.criadoEm()), contribuicoesDto.contribuicoes(), contribuicoesDto.commits(), contribuicoesDto.issues(),
                 contribuicoesDto.pullRequests());
     }
 
@@ -76,10 +73,5 @@ public record UsuarioUnicoDto(String userName,
 
     private static Integer totalDeEstrelas (List<RepositoriosMultiplosDto> repositorioDto) {
         return repositorioDto.stream().mapToInt(RepositoriosMultiplosDto::estrelas).sum();
-    }
-
-    private static String formatarData(Instant instant) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
-        return formatter.format(instant.atZone(ZoneId.of("UTC")));
     }
 }

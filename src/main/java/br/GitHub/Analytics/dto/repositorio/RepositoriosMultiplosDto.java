@@ -2,14 +2,11 @@ package br.GitHub.Analytics.dto.repositorio;
 
 import br.GitHub.Analytics.domain.Repositorio;
 import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
+import br.GitHub.Analytics.service.Utilitarios;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 
 @JsonPropertyOrder({
         "nome",
@@ -35,7 +32,7 @@ public record RepositoriosMultiplosDto(@JsonIgnore Long id,
 
     public RepositoriosMultiplosDto(RepositorioDados dados) {
         this(dados.id() != null ? dados.id() : 0, dados.nome() != null ? dados.nome() : "N/A", dados.descricao() != null ? dados.descricao() : "N/A",
-                formatarData(dados.criadoEm()), formatarData(dados.ultimoUpdate()), dados.estrelas() != null ? dados.estrelas() : 0,
+                Utilitarios.formatarDataParaString(dados.criadoEm()), Utilitarios.formatarDataParaString(dados.ultimoUpdate()), dados.estrelas() != null ? dados.estrelas() : 0,
                 dados.linguagem() != null ? dados.linguagem() : "N/A", dados.forks() != null ? dados.forks() : 0,
                 dados.topicos() != null ? dados.topicos() : List.of(), dados.openIssues() != null ? dados.openIssues() : 0);
     }
@@ -44,10 +41,5 @@ public record RepositoriosMultiplosDto(@JsonIgnore Long id,
         this(repositorio.getRepositorioId(), repositorio.getNome(), repositorio.getDescricao(), repositorio.getCriadoEm(),
                 repositorio.getUltimoUpdate(), repositorio.getEstrelas(), repositorio.getLinguagem(),
                 repositorio.getForks(), repositorio.getTopicos(), repositorio.getOpenIssues());
-    }
-
-    private static String formatarData(Instant instant) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.forLanguageTag("pt-BR"));
-        return formatter.format(instant.atZone(ZoneId.of("UTC")));
     }
 }

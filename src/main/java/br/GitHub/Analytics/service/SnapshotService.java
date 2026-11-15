@@ -15,9 +15,7 @@ import br.GitHub.Analytics.repository.IRepositorioRepository;
 import br.GitHub.Analytics.repository.ISnapshotRepository;
 import br.GitHub.Analytics.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,17 +25,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SnapshotService {
 
-    @Value("${github.token}")
-    private String token;
-
-    private final String URL = "https://api.github.com/users/";
     private final IUsuarioRepository usuarioRepository;
     private final IRepositorioRepository repositorioRepository;
     private final ISnapshotRepository snapshotRepository;
     private final RepositorioService repositorioService;
     private final UsuarioService usuarioService;
+    private final Utilitarios utilitarios;
     private final SincronizacaoPersistenciaService sincronizacaoPersistenciaService;
-    private final RestClient restClient;
 
     public List<SnapshotDto> verHistorico(String nome) {
         String nomeFormatado = Utilitarios.tirarEspaco(nome);
@@ -53,7 +47,7 @@ public class SnapshotService {
         snapshotsDto.add(new SnapshotDto(usuario.getUserName(), informacoesAntigas));
 
         return snapshotsDto.stream()
-                .sorted(Comparator.comparing((SnapshotDto s) -> Utilitarios.formatarDataRepositorio(s.informacoesAntigas().get(0).sincronizadoEm())).reversed())
+                .sorted(Comparator.comparing((SnapshotDto s) -> Utilitarios.formatarStringParaData(s.informacoesAntigas().get(0).sincronizadoEm())).reversed())
                 .toList();
     }
 
@@ -64,7 +58,7 @@ public class SnapshotService {
         Usuario usuarioBanco = usuarioRepository.findByUserNameIgnoreCase(nome)
                 .orElseThrow(() -> new NotFoundException(String.format("O usuário '%s' não esta no Banco de Dados. Nenhum dado foi alterado.", nomeParametro)));
 
-        UsuarioUnicoDados usuarioUnicoDados = usarRestClient(usuarioBanco.getUserName());
+        UsuarioUnicoDados usuarioUnicoDados = utilitarios.usarRestClient("https://api.github.com/users/", usuarioBanco.getUserName(), UsuarioUnicoDados.class);
 
         if (usuarioUnicoDados == null) throw new NotFoundException(String.format("Nenhum usuário com o username '%s' foi encontrado.", nome));
 
@@ -87,14 +81,5 @@ public class SnapshotService {
         sincronizacaoPersistenciaService.salvar(usuarioBanco, repositorio );
 
         return usuarioUnicoDto;
-    }
-
-    private UsuarioUnicoDados usarRestClient(String uri) {
-        return restClient.get()
-                .uri(URL + uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(UsuarioUnicoDados.class);
     }
 }

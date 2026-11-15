@@ -91,9 +91,7 @@ public class Snapshot {
     }
 
     public void tabelaUsuarioFoiAlterada(Boolean valor) {
-        String resultado = "Não";
-        if(valor) resultado = "Sim";
-        this.alterouTabelaUsuarios = resultado;
+        this.alterouTabelaUsuarios = Boolean.TRUE.equals(valor) ? "Sim" : "Não";
     }
 
     public void repositoriosAlterados(ResultadoRepositorios r, Integer quantidadeBanco, Integer quantidadeApi) {
@@ -106,8 +104,7 @@ public class Snapshot {
     }
 
     public void tabelaRepositorioFoiAlterada(ResultadoRepositorios r) {
-        String resultado = "Não";
-        if(r.houveAlteracao() || getRepositoriosRemovidos() > 0) resultado = "Sim";
-        this.alterouTabelaRepositorios = resultado;
+        boolean alterouNoResultado = (r != null && r.houveAlteracao());
+        this.alterouTabelaRepositorios = alterouNoResultado || getRepositoriosRemovidos() > 0 ? "Sim" : "Não";
     }
 }
