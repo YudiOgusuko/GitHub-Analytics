@@ -15,6 +15,7 @@ import br.GitHub.Analytics.repository.IRepositorioRepository;
 import br.GitHub.Analytics.repository.ISnapshotRepository;
 import br.GitHub.Analytics.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,26 +31,8 @@ public class SnapshotService {
     private final ISnapshotRepository snapshotRepository;
     private final RepositorioService repositorioService;
     private final UsuarioService usuarioService;
-    private final Utilitarios utilitarios;
+    private final GitHubClient gitHubClient;
     private final SincronizacaoPersistenciaService sincronizacaoPersistenciaService;
-
-    public List<SnapshotDto> verHistorico(String nome) {
-        String nomeFormatado = Utilitarios.tirarEspaco(nome);
-
-        Usuario usuario = usuarioRepository.findByUserNameIgnoreCase(nome)
-                .orElseThrow(() -> new NotFoundException(String.format("'%s' não esta no Banco de Dados. Não é possível acessar o histórico.", nomeFormatado)));
-
-        List<Snapshot> snapshots = snapshotRepository.findAllByUserName(usuario.getUserName());
-        List<SnapshotDto> snapshotsDto = new ArrayList<>();
-        List<InformacoesAntigas> informacoesAntigas = new ArrayList<>();
-
-        snapshots.forEach(s -> informacoesAntigas.add(new InformacoesAntigas(s)));
-        snapshotsDto.add(new SnapshotDto(usuario.getUserName(), informacoesAntigas));
-
-        return snapshotsDto.stream()
-                .sorted(Comparator.comparing((SnapshotDto s) -> Utilitarios.formatarStringParaData(s.informacoesAntigas().get(0).sincronizadoEm())).reversed())
-                .toList();
-    }
 
     public UsuarioUnicoDto sincronizarDadosUsuarioERepositorios(String nome) {
         nome = Utilitarios.tirarEspaco(nome);
@@ -58,11 +41,11 @@ public class SnapshotService {
         Usuario usuarioBanco = usuarioRepository.findByUserNameIgnoreCase(nome)
                 .orElseThrow(() -> new NotFoundException(String.format("O usuário '%s' não esta no Banco de Dados. Nenhum dado foi alterado.", nomeParametro)));
 
-        UsuarioUnicoDados usuarioUnicoDados = utilitarios.usarRestClient("https://api.github.com/users/", usuarioBanco.getUserName(), UsuarioUnicoDados.class);
+        UsuarioUnicoDados usuarioUnicoDados = gitHubClient.usarRestClient("https://api.github.com/users/", usuarioBanco.getUserName(), UsuarioUnicoDados.class);
 
         if (usuarioUnicoDados == null) throw new NotFoundException(String.format("Nenhum usuário com o username '%s' foi encontrado.", nome));
 
-        List<RepositoriosMultiplosDto> repositorioDaApi = repositorioService.buscarRepositoriosMultiplosNaApi(usuarioBanco.getUserName());
+        List<RepositoriosMultiplosDto> repositorioDaApi = repositorioService.buscarTodosRepositoriosNaApi(usuarioBanco.getUserName());
         UsuarioContribuicoesDto contribuicoesDto = usuarioService.buscarContribuicoesNaApi(nome);
         UsuarioUnicoDto usuarioUnicoDto = new UsuarioUnicoDto(usuarioUnicoDados, repositorioDaApi, contribuicoesDto);
         List<Repositorio> repositorio = repositorioRepository.findAllByUsuarioId(usuarioBanco.getId());
@@ -81,5 +64,26 @@ public class SnapshotService {
         sincronizacaoPersistenciaService.salvar(usuarioBanco, repositorio );
 
         return usuarioUnicoDto;
+    }
+
+    public List<SnapshotDto> verHistorico(String nome, Integer pagina, Integer tamanho) {
+        String nomeFormatado = Utilitarios.tirarEspaco(nome);
+
+        Usuario usuario = usuarioRepository.findByUserNameIgnoreCase(nome)
+                .orElseThrow(() -> new NotFoundException(String.format("'%s' não esta no Banco de Dados. Não é possível acessar o histórico.", nomeFormatado)));
+
+        if(pagina == null) pagina = 1;
+        if(tamanho == null) tamanho = 30;
+
+        List<Snapshot> snapshots = snapshotRepository.findAllByUserName(usuario.getUserName(), PageRequest.of(pagina -1, tamanho));
+        List<SnapshotDto> snapshotsDto = new ArrayList<>();
+        List<InformacoesAntigas> informacoesAntigas = new ArrayList<>();
+
+        snapshots.forEach(s -> informacoesAntigas.add(new InformacoesAntigas(s)));
+        snapshotsDto.add(new SnapshotDto(usuario.getUserName(), informacoesAntigas));
+
+        return snapshotsDto.stream()
+                .sorted(Comparator.comparing((SnapshotDto s) -> Utilitarios.formatarStringParaData(s.informacoesAntigas().get(0).sincronizadoEm())).reversed())
+                .toList();
     }
 }

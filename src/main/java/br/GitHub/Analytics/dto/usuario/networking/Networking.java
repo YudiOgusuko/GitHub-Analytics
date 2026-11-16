@@ -4,6 +4,5 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record Networking(@JsonProperty("login") String userName,
-                         @JsonProperty("avatar_url") String avatar ) {
+public record Networking(@JsonProperty("login") String userName) {
 }

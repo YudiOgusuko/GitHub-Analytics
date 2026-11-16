@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class RepositorioService {
 
     private final IRepositorioRepository repositorioRepository;
     private final IUsuarioRepository usuarioRepository;
-    private final Utilitarios utilitarios;
+    private final GitHubClient githubClient;
 
     public List<RepositoriosMultiplosDto> buscarRepositoriosMultiplos(String usuario) {
         String usuarioFormatado = Utilitarios.tirarEspaco(usuario);
@@ -32,23 +31,18 @@ public class RepositorioService {
         return usuarioRepository.findByUserNameIgnoreCase(usuarioFormatado)
                 .map(user -> repositorioRepository.findAllByUsuarioId(user.getId()))
                 .filter(repositorios -> !repositorios.isEmpty())
-                .map(repositorios -> repositorios.stream()
-                        .map(RepositoriosMultiplosDto::new)
-                        .sorted(Comparator.comparing(d -> Utilitarios.formatarStringParaData(d.criadoEm()), Comparator.reverseOrder()))
-                        .toList())
-                .orElseGet(() ->(buscarRepositoriosMultiplosNaApi(usuarioFormatado)));
+                .map(repositorios -> repositorios.stream().map(RepositoriosMultiplosDto::new).toList())
+                .orElseGet(() -> buscarTodosRepositoriosNaApi(usuarioFormatado));
     }
 
-    public List<RepositoriosMultiplosDto> buscarRepositoriosMultiplosNaApi(String usuario) {
-        usuario = Utilitarios.tirarEspaco(usuario);
+    public List<RepositoriosMultiplosDto> buscarTodosRepositoriosNaApi(String usuario) {
+        String usuarioFormatado = Utilitarios.tirarEspaco(usuario);
 
-        List<RepositorioDados> repositorioDados = utilitarios.usarRestClientLista("https://api.github.com/users/", usuario, "/repos", new ParameterizedTypeReference<>() {});
-
-        if(repositorioDados == null || repositorioDados.isEmpty()) throw new NotFoundException(String.format("Nenhum repositório foi encontrado para o usuário '%s'.", usuario));
-
-        return repositorioDados.stream()
+        return githubClient.buscarTodas(
+                "https://api.github.com/users/" + usuarioFormatado + "/repos?sort=created&direction=desc",
+                        new ParameterizedTypeReference<List<RepositorioDados>>() {})
+                .stream()
                 .map(RepositoriosMultiplosDto::new)
-                .sorted(Comparator.comparing(d -> Utilitarios.formatarStringParaData(d.criadoEm()), Comparator.reverseOrder()))
                 .toList();
     }
 
@@ -56,15 +50,15 @@ public class RepositorioService {
         usuario = Utilitarios.tirarEspaco(usuario);
 
         String uriRepositorio = String.format("%s/%s", usuario, repositorio);
-        RepositorioDados repositorioDados = utilitarios.usarRestClient("https://api.github.com/repos/", uriRepositorio, RepositorioDados.class);
+        RepositorioDados repositorioDados = githubClient.usarRestClient("https://api.github.com/repos/", uriRepositorio, RepositorioDados.class);
 
         if(repositorioDados == null) throw new NotFoundException(String.format("Repositório '%s' não encontrado para o usuário '%s'.", repositorio, usuario));
 
-        List<Branches> branches = utilitarios.usarRestClientUnicoRepositorio(uriRepositorio + "/branches", new ParameterizedTypeReference<>() {});
-        Map<String, Integer> linguagens = utilitarios.usarRestClientUnicoRepositorio(uriRepositorio + "/languages", new ParameterizedTypeReference<>() {});
-        List<Contribuidores> contribuidores = utilitarios.usarRestClientUnicoRepositorio(uriRepositorio + "/contributors", new ParameterizedTypeReference<>() {});
-        List<Commits> commits = utilitarios.usarRestClientUnicoRepositorio(uriRepositorio + "/commits", new ParameterizedTypeReference<>() {});
-        List<Pulls> pulls = utilitarios.usarRestClientUnicoRepositorio(uriRepositorio + "/pulls", new ParameterizedTypeReference<>() {});
+        List<Branches> branches = githubClient.usarRestClientUnicoRepositorio(uriRepositorio + "/branches", new ParameterizedTypeReference<>() {});
+        Map<String, Integer> linguagens = githubClient.usarRestClientUnicoRepositorio(uriRepositorio + "/languages", new ParameterizedTypeReference<>() {});
+        List<Contribuidores> contribuidores = githubClient.usarRestClientUnicoRepositorio(uriRepositorio + "/contributors", new ParameterizedTypeReference<>() {});
+        List<Commits> commits = githubClient.usarRestClientUnicoRepositorio(uriRepositorio + "/commits", new ParameterizedTypeReference<>() {});
+        List<Pulls> pulls = githubClient.usarRestClientUnicoRepositorio(uriRepositorio + "/pulls", new ParameterizedTypeReference<>() {});
 
         return new RepositorioUnicoDto(repositorioDados, branches, linguagens, contribuidores, commits, pulls);
     }

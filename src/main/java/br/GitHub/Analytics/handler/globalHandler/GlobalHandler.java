@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import tools.jackson.databind.exc.MismatchedInputException;
 
@@ -91,6 +92,16 @@ public class GlobalHandler {
     public ResponseEntity<ErrorResponse> httpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .message(String.format("O método de requisição '%s' é inválido. Por favor, verifique o construtor.", e.getMethod()))
+                .status(HttpStatus.METHOD_NOT_ALLOWED.value())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> httpRequestMethodNotSupportedException(HandlerMethodValidationException e) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .message("A requisição realizada é inválida. Por favor, verifique o construtor")
                 .status(HttpStatus.METHOD_NOT_ALLOWED.value())
                 .build();
 

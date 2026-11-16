@@ -2,15 +2,14 @@ package br.GitHub.Analytics.service;
 
 import br.GitHub.Analytics.domain.Repositorio;
 import br.GitHub.Analytics.domain.Usuario;
+import br.GitHub.Analytics.dto.paginacao.PaginaDto;
 import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
 import br.GitHub.Analytics.dto.usuario.*;
 import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
-import br.GitHub.Analytics.dto.usuario.dados.UsuarioMultiplosDados;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
 import br.GitHub.Analytics.dto.usuario.eventos.Eventos;
 import br.GitHub.Analytics.dto.usuario.linguagensMaisUsadas.LinguagensMaisUsadas;
 import br.GitHub.Analytics.dto.usuario.networking.Networking;
-import br.GitHub.Analytics.handler.exception.NoContentException;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import br.GitHub.Analytics.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,7 @@ public class UsuarioService {
     private final String URL_GRAPHQL = "https://api.github.com/graphql";
     private final IUsuarioRepository usuarioRepository;
     private final RepositorioService repositorioService;
-    private final Utilitarios utilitarios;
+    private final GitHubClient githubClient;
     private final RestClient restClient;
 
     public UsuarioUnicoDto buscarUsuario(String nome) {
@@ -49,11 +51,11 @@ public class UsuarioService {
     public UsuarioUnicoDto buscarUsuarioUnicoNaApi(String nome) {
         nome = Utilitarios.tirarEspaco(nome);
 
-        UsuarioUnicoDados usuarioUnicoDados = utilitarios.usarRestClient(URL_UNICA, nome, UsuarioUnicoDados.class);
+        UsuarioUnicoDados usuarioUnicoDados = githubClient.usarRestClient(URL_UNICA, nome, UsuarioUnicoDados.class);
 
         if(usuarioUnicoDados == null) throw new NotFoundException(String.format("Nenhum usuário com o username '%s' foi encontrado.", nome));
 
-        List<RepositoriosMultiplosDto> repositorioDtos = repositorioService.buscarRepositoriosMultiplosNaApi(usuarioUnicoDados.userName());
+        List<RepositoriosMultiplosDto> repositorioDtos = repositorioService.buscarTodosRepositoriosNaApi(usuarioUnicoDados.userName());
         UsuarioContribuicoesDto contribuicoesDto = buscarContribuicoesNaApi(nome);
         UsuarioUnicoDto usuarioUnicoDto = new UsuarioUnicoDto(usuarioUnicoDados, repositorioDtos, contribuicoesDto);
 
@@ -61,35 +63,22 @@ public class UsuarioService {
         repositorioDtos.forEach(r -> user.adicionarRepositorio(new Repositorio(r)));
 
         usuarioRepository.save(user);
+
         return usuarioUnicoDto;
     }
 
-    public UsuariosMultiplosDto buscarUsuariosMultiplosNaApi(String nome) {
-
-        UsuarioMultiplosDados usuarioMultiplosDados = utilitarios.usarRestClient(URL_GERAL, nome, UsuarioMultiplosDados.class);
-        if(usuarioMultiplosDados == null) throw new NotFoundException(String.format("Nenhum usuário com o nome  %s foi encontrado.", nome));
-
-        List<UsuarioPerfisDto> usuarioPerfisDtos = new ArrayList<>();
-        usuarioMultiplosDados.perfil().forEach(u -> usuarioPerfisDtos.add(new UsuarioPerfisDto(u)));
-
-        return new UsuariosMultiplosDto(usuarioMultiplosDados.totalDeUsuarios(), usuarioPerfisDtos );
+    public PaginaDto<UsuarioNetworkingDto> buscarUsuariosMultiplosNaApi(String nome, Integer pagina, Integer tamanho) {
+        return githubClient.buscarPaginaMultiplo(URL_GERAL + nome, pagina, tamanho, new ParameterizedTypeReference<UsuariosMultiplosDto<Networking>>() {})
+                .mapear(UsuarioNetworkingDto::new);
     }
 
-    public List<UsuarioEventosDto> buscarEventosNaApi (String nome) {
+    public PaginaDto<UsuarioEventosDto> buscarEventosNaApi (String nome, Integer pagina, Integer tamanho) {
         nome = Utilitarios.tirarEspaco(nome);
+        List<Eventos> eventosDados = githubClient.buscarTodas(URL_UNICA + nome + "/events", new ParameterizedTypeReference<>() {});
 
-        List<Eventos> eventosDados = utilitarios.usarRestClientLista(URL_UNICA, nome, "/events", new ParameterizedTypeReference<>(){});
-
-        if (eventosDados == null) {
-            throw new NotFoundException(String.format("Nenhum evento foi encontrado para %s.", nome));
-        } else if(eventosDados.isEmpty()) {
-            throw new NoContentException(String.format("%s não possui nenhum evento recente.", nome));
-        }
-
-        return eventosDados.stream()
-                .map(UsuarioEventosDto::new)
-                .sorted(Comparator.comparing(d -> Utilitarios.formatarStringParaData(d.criadoEm()), Comparator.reverseOrder()))
-                .toList();
+        return githubClient.buscarPagina(URL_UNICA + nome + "/events", pagina, tamanho, new ParameterizedTypeReference<List<Eventos>>(){})
+                .mapear(UsuarioEventosDto::new)
+                .comTotal(Long.valueOf(eventosDados.size()));
     }
 
     public UsuarioContribuicoesDto buscarContribuicoes(String nome) {
@@ -138,37 +127,31 @@ public class UsuarioService {
         return new UsuarioContribuicoesDto(contribuicoes);
     }
 
-    public UsuarioSeguidoresDto buscarSeguidoresNaApi(String usuario) {
+    public PaginaDto<UsuarioNetworkingDto> buscarSeguidoresNaApi(String usuario, Integer pagina, Integer tamanho) {
         usuario = Utilitarios.tirarEspaco(usuario);
-        List<Networking> networkings = utilitarios.usarRestClientLista(URL_UNICA, usuario, "/followers", new ParameterizedTypeReference<>(){});
+        UsuarioUnicoDados perfil = githubClient.usarRestClient(URL_UNICA, usuario, UsuarioUnicoDados.class);
 
-        List<UsuarioNetworkingDto> usuarioNetworkingDtos = new ArrayList<>();
-        networkings.forEach(n -> usuarioNetworkingDtos.add(new UsuarioNetworkingDto(n)));
-
-        return new UsuarioSeguidoresDto(usuarioNetworkingDtos);
+        return githubClient.buscarPagina(URL_UNICA + usuario + "/followers", pagina, tamanho, new ParameterizedTypeReference<List<Networking>>() {})
+                .mapear(UsuarioNetworkingDto::new)
+                .comTotal(Long.valueOf(perfil.seguidores()));
     }
 
-    public UsuarioSeguindoDto buscarSeguindoNaApi(String usuario) {
+    public PaginaDto<UsuarioNetworkingDto> buscarSeguindoNaApi(String usuario, Integer pagina, Integer tamanho) {
         usuario = Utilitarios.tirarEspaco(usuario);
-        List<Networking> networkings = utilitarios.usarRestClientLista(URL_UNICA, usuario, "/following", new ParameterizedTypeReference<>(){});
+        UsuarioUnicoDados perfil = githubClient.usarRestClient(URL_UNICA, usuario, UsuarioUnicoDados.class);
 
-        List<UsuarioNetworkingDto> usuarioNetworkingDtos = new ArrayList<>();
-        networkings.forEach(n -> usuarioNetworkingDtos.add(new UsuarioNetworkingDto(n)));
-
-        return new UsuarioSeguindoDto(usuarioNetworkingDtos);
+        return githubClient.buscarPagina(URL_UNICA + usuario + "/following", pagina, tamanho, new ParameterizedTypeReference<List<Networking>>() {})
+                .mapear(UsuarioNetworkingDto::new)
+                .comTotal(Long.valueOf(perfil.seguindo()));
     }
 
     public LinguagensMaisUsadas rankingLinguagens(String nome) {
-
         List<RepositoriosMultiplosDto> repositorios = repositorioService.buscarRepositoriosMultiplos(nome);
 
         List<String> linguagens = repositorios.stream()
                 .map(RepositoriosMultiplosDto::linguagem)
                 .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(
-                        Function.identity(),
-                        Collectors.counting()
-                ))
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())

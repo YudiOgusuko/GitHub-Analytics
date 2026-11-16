@@ -1,50 +1,12 @@
 package br.GitHub.Analytics.service;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.client.RestClient;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-@RequiredArgsConstructor
 public class Utilitarios {
-
-    @Value("${github.token}")
-    private String token;
-
-    private final RestClient restClient;
-
-    public <T> T usarRestClient(String url, String uri, Class<T> responseType) {
-        return restClient.get()
-                .uri(url + uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(responseType);
-    }
-
-    public  <T> T usarRestClientLista(String url, String usuario, String uri, ParameterizedTypeReference<T> responseType) {
-        return restClient.get()
-                .uri(url + usuario + uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(responseType);
-    }
-
-    public  <T> T usarRestClientUnicoRepositorio(String uri, ParameterizedTypeReference<T> responseType) {
-        return restClient.get()
-                .uri( "https://api.github.com/repos/" + uri)
-                .header("Authorization", "Bearer " + token)
-                .header("Accept", "application/vnd.github+json")
-                .retrieve()
-                .body(responseType);
-    }
 
     public static String formatarString(String txt) {
         if(txt == null || txt.isBlank()) return "";

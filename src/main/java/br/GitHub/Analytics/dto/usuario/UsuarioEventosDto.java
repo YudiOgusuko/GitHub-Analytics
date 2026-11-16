@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "tipo",
         "repositorioNome",
         "criadoEm"})
+
 public record UsuarioEventosDto(String id,
                                 String tipo,
                                 String repositorioNome,
