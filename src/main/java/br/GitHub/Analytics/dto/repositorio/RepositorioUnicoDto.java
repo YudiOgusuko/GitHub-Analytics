@@ -6,11 +6,13 @@ import br.GitHub.Analytics.dto.repositorio.contribuidores.Contribuidores;
 import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
 import br.GitHub.Analytics.dto.repositorio.pulls.Pulls;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Builder
 @JsonPropertyOrder({
         "nome",
         "descricao",

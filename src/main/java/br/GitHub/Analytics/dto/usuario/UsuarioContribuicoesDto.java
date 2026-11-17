@@ -3,13 +3,16 @@ package br.GitHub.Analytics.dto.usuario;
 import br.GitHub.Analytics.domain.Usuario;
 import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 
+@Builder
 @JsonPropertyOrder({
          "contribuicoes",
          "commits",
          "issues",
          "pullRequests",
 })
+
 public record UsuarioContribuicoesDto(Integer contribuicoes,
                                       Integer commits,
                                       Integer issues,

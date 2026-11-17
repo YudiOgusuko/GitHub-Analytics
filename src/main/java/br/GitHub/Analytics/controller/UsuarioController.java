@@ -1,7 +1,10 @@
 package br.GitHub.Analytics.controller;
 
 import br.GitHub.Analytics.dto.paginacao.PaginaDto;
-import br.GitHub.Analytics.dto.usuario.*;
+import br.GitHub.Analytics.dto.usuario.UsuarioContribuicoesDto;
+import br.GitHub.Analytics.dto.usuario.UsuarioEventosDto;
+import br.GitHub.Analytics.dto.usuario.UsuarioNetworkingDto;
+import br.GitHub.Analytics.dto.usuario.UsuarioUnicoDto;
 import br.GitHub.Analytics.dto.usuario.linguagensMaisUsadas.LinguagensMaisUsadas;
 import br.GitHub.Analytics.service.UsuarioService;
 import jakarta.validation.constraints.Max;

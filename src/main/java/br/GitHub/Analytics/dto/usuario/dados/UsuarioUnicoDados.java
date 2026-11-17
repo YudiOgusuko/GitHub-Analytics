@@ -2,9 +2,11 @@ package br.GitHub.Analytics.dto.usuario.dados;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
 import java.time.Instant;
 
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UsuarioUnicoDados(@JsonProperty("login") String userName,
                                 @JsonProperty("avatar_url") String avatar,

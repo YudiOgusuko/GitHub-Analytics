@@ -1,8 +1,11 @@
 package br.GitHub.Analytics.dto.paginacao;
 
+import lombok.Builder;
+
 import java.util.List;
 import java.util.function.Function;
 
+@Builder
 public record PaginaDto<T>(List<T> conteudo,
                            int pagina,
                            int tamanho,

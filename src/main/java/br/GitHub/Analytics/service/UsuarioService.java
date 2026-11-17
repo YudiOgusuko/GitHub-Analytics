@@ -13,11 +13,8 @@ import br.GitHub.Analytics.dto.usuario.networking.Networking;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import br.GitHub.Analytics.repository.IUsuarioRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
@@ -30,16 +27,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UsuarioService {
 
-    @Value("${github.token}")
-    private String token;
-
     private final String URL_UNICA = "https://api.github.com/users/";
     private final String URL_GERAL = "https://api.github.com/search/users?q=";
-    private final String URL_GRAPHQL = "https://api.github.com/graphql";
     private final IUsuarioRepository usuarioRepository;
     private final RepositorioService repositorioService;
     private final GitHubClient githubClient;
-    private final RestClient restClient;
 
     public UsuarioUnicoDto buscarUsuario(String nome) {
         String nomeFormatado = Utilitarios.tirarEspaco(nome);
@@ -113,15 +105,7 @@ public class UsuarioService {
                 "query", query,
                 "variables", Map.of("login", nome));
 
-        Contribuicoes contribuicoes = restClient.post()
-                .uri(URL_GRAPHQL)
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(corpo)
-                .retrieve()
-                .body(Contribuicoes.class);
-        System.out.println(contribuicoes);
-
+        Contribuicoes contribuicoes = githubClient.usarRestClientContribuicoes(corpo);
         if(contribuicoes == null) throw new NotFoundException(String.format("Nenhum usuário com o nome %s foi encontrado.", nome));
 
         return new UsuarioContribuicoesDto(contribuicoes);

@@ -112,7 +112,7 @@ public class Usuario {
         snapshot.setUsuario(this);
     }
 
-    public Boolean temDadosDiferentes(Usuario user, UsuarioUnicoDto userDto) {
+    public static Boolean temDadosDiferentes(Usuario user, UsuarioUnicoDto userDto) {
         if(!Objects.equals(user.getUserName(), userDto.userName()) || !Objects.equals(user.getNome(), userDto.nome()) || !Objects.equals(user.getBio(), userDto.bio())
                 || !Objects.equals(user.getLinguagemPreferida(), userDto.linguagemPreferida()) || !Objects.equals(user.getRepositorios(), userDto.repositorios())
                 || !Objects.equals(user.getEstrelas(), userDto.estrelas()) || !Objects.equals(user.getSeguidores(), userDto.seguidores()) || !Objects.equals(user.getSeguindo(), userDto.seguindo())

@@ -5,6 +5,7 @@ import br.GitHub.Analytics.dto.repositorio.RepositoriosMultiplosDto;
 import br.GitHub.Analytics.dto.usuario.dados.UsuarioUnicoDados;
 import br.GitHub.Analytics.service.Utilitarios;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Builder
 @JsonPropertyOrder({
          "userName",
          "nome",

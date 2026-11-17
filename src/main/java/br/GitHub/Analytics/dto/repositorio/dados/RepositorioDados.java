@@ -2,10 +2,12 @@ package br.GitHub.Analytics.dto.repositorio.dados;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
 import java.time.Instant;
 import java.util.List;
 
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RepositorioDados(@JsonProperty("id") Long id,
                                @JsonProperty("name") String nome,

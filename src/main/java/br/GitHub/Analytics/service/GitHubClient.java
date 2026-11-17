@@ -2,11 +2,13 @@ package br.GitHub.Analytics.service;
 
 import br.GitHub.Analytics.dto.paginacao.PaginaDto;
 import br.GitHub.Analytics.dto.usuario.UsuariosMultiplosDto;
+import br.GitHub.Analytics.dto.usuario.contribuicoes.Contribuicoes;
 import br.GitHub.Analytics.handler.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
@@ -16,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -108,5 +111,15 @@ public class GitHubClient {
                 .header("Accept", "application/vnd.github+json")
                 .retrieve()
                 .body(responseType);
+    }
+
+    public Contribuicoes usarRestClientContribuicoes(Map<String,Object> corpo) {
+        return restClient.post()
+                .uri("https://api.github.com/graphql")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(corpo)
+                .retrieve()
+                .body(Contribuicoes.class);
     }
 }

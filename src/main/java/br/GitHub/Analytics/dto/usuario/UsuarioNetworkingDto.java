@@ -1,7 +1,9 @@
 package br.GitHub.Analytics.dto.usuario;
 
 import br.GitHub.Analytics.dto.usuario.networking.Networking;
+import lombok.Builder;
 
+@Builder
 public record UsuarioNetworkingDto(String userName) {
 
     public UsuarioNetworkingDto(Networking networking) {

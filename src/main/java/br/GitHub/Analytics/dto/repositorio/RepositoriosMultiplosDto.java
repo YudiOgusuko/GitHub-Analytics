@@ -5,9 +5,11 @@ import br.GitHub.Analytics.dto.repositorio.dados.RepositorioDados;
 import br.GitHub.Analytics.service.Utilitarios;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 @JsonPropertyOrder({
         "nome",
         "descricao",
