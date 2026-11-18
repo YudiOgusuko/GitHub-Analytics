@@ -1,0 +1,764 @@
+{
+	"info": {
+		"name": "GitHub Analytics",
+		"description": "Requisições da API do projeto GitHub Analytics (backend Java + Spring Boot + API do GitHub). Importe no Postman, Insomnia ou Bruno. Altere as variáveis base_url, usuario e repositorio conforme necessário.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "usuario",
+			"value": "torvalds"
+		},
+		{
+			"key": "repositorio",
+			"value": "linux"
+		}
+	],
+	"item": [
+		{
+			"name": "Usuários",
+			"item": [
+				{
+					"name": "Buscar usuário único",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/unico?nome={{usuario}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								}
+							]
+						},
+						"description": "Retorna perfil, números gerais e linguagem preferida. Na primeira consulta salva usuário e repositórios no banco."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Buscar usuários (busca por nome)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/multiplos?nome=vitor souza&pagina=1&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"multiplos"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "vitor souza",
+									"description": "Texto da busca (1 a 255 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": "Número da página (mínimo 1)"
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": "Itens por página (1 a 100)"
+								}
+							]
+						},
+						"description": "Busca paginada de usuários."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Eventos recentes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/eventos?nome={{usuario}}&pagina=1&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"eventos"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": "Número da página (mínimo 1)"
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": "Itens por página (1 a 100)"
+								}
+							]
+						},
+						"description": "Atividade pública recente (push, pull request, etc.)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Contribuições",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/contribuicoes?nome={{usuario}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"contribuicoes"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								}
+							]
+						},
+						"description": "Contribuições, commits, issues e pull requests (GraphQL)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Seguidores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/seguidores?nome={{usuario}}&pagina=1&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"seguidores"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": "Número da página (mínimo 1)"
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": "Itens por página (1 a 100)"
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Seguindo",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/seguindo?nome={{usuario}}&pagina=1&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"seguindo"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": "Número da página (mínimo 1)"
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": "Itens por página (1 a 100)"
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Ranking de linguagens",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/rankingLinguagens?nome={{usuario}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"rankingLinguagens"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								}
+							]
+						},
+						"description": "Linguagens ordenadas da mais usada para a menos usada."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Repositórios",
+			"item": [
+				{
+					"name": "Listar repositórios do usuário",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/repos/multiplos?usuario={{usuario}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"repos",
+								"multiplos"
+							],
+							"query": [
+								{
+									"key": "usuario",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub"
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Buscar repositório único",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/repos/unico?usuario={{usuario}}&repositorio={{repositorio}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"repos",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "usuario",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub"
+								},
+								{
+									"key": "repositorio",
+									"value": "{{repositorio}}",
+									"description": "Nome do repositório (1 a 100 caracteres)"
+								}
+							]
+						},
+						"description": "Detalhes: commits, branches, issues, PRs, linguagens e contribuidores."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Análise (Sincronização e Histórico)",
+			"item": [
+				{
+					"name": "Sincronizar usuário e repositórios",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/analisar/sincronizar?nome={{usuario}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"analisar",
+								"sincronizar"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								}
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": "Atualiza usuário e repositórios no banco e grava um Snapshot com o que mudou."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Ver histórico de mudanças",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/analisar/historico?nome={{usuario}}&pagina=1&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"analisar",
+								"historico"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": "Número da página (mínimo 1)"
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": "Itens por página (1 a 100)"
+								}
+							]
+						},
+						"description": "Snapshots anteriores do usuário (executar após sincronizar)."
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Erros e validações",
+			"item": [
+				{
+					"name": "Erro - nome vazio",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/unico?nome=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "",
+									"description": "Vazio: viola @NotBlank"
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Erro - nome com mais de 39 caracteres",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/unico?nome=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+									"description": "Viola @Size(max = 39)"
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Erro - página 0",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/seguidores?nome={{usuario}}&pagina=0&tamanho=30",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"seguidores"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "0",
+									"description": ""
+								},
+								{
+									"key": "tamanho",
+									"value": "30",
+									"description": ""
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Erro - tamanho acima de 100",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/seguidores?nome={{usuario}}&pagina=1&tamanho=101",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"seguidores"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "{{usuario}}",
+									"description": "Login do GitHub (1 a 39 caracteres)"
+								},
+								{
+									"key": "pagina",
+									"value": "1",
+									"description": ""
+								},
+								{
+									"key": "tamanho",
+									"value": "101",
+									"description": ""
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Erro - repositório inexistente",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/repos/unico?usuario={{usuario}}&repositorio=repositorio-que-nao-existe-123",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"repos",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "usuario",
+									"value": "{{usuario}}",
+									"description": ""
+								},
+								{
+									"key": "repositorio",
+									"value": "repositorio-que-nao-existe-123",
+									"description": ""
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Erro - usuário inexistente",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api.github/users/unico?nome=usuario-que-nao-existe-9876543210",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api.github",
+								"users",
+								"unico"
+							],
+							"query": [
+								{
+									"key": "nome",
+									"value": "usuario-que-nao-existe-9876543210",
+									"description": ""
+								}
+							]
+						}
+					},
+					"response": [],
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Retorna erro (status >= 400)', function () { pm.expect(pm.response.code).to.be.at.least(400); });"
+								]
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}
